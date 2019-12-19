@@ -32,7 +32,7 @@ namespace Com.MyCompany.MyGame {
             if (!game.paused) {
                 _aiBehaviour.update();
                 ProcessInputs();
-                checkcollision();
+                //checkcollision();
             }
         }
 

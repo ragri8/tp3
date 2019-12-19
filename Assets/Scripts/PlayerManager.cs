@@ -15,15 +15,17 @@ namespace Com.MyCompany.MyGame {
         private GameManager game;
         public GameObject healthbar;
         public float playerSpeed;
+        public float playerXSpeed;
+        public float playerZSpeed;
+        private Rigidbody playerBody;
         private int longeur = 15;
         private int largeur = 10;
         public float health=10;//vie maximale
-        private static float MAX_SPEED = 150.0f;
-        private static float ACCEL = 100f;
+        public float MAX_SPEED = 25.0f;
+        private static float ACCEL = 100f; // to delete?
 
         private Dictionary<string, KeyCode> controlKeys = new Dictionary<string, KeyCode>();
         private float rotationSensibility;
-
 
         void Awake() {
             PlayerManager.LocalPlayerInstance = this.gameObject;
@@ -40,6 +42,7 @@ namespace Com.MyCompany.MyGame {
                         enemy.SendMessage("syncPlayer"); // s'assure que les bots sont synchronisé avec le joueur
                 }
             }
+            playerBody = LocalPlayerInstance.GetComponent<Rigidbody>();
         }
         
         void Start() {
@@ -62,47 +65,45 @@ namespace Com.MyCompany.MyGame {
         void Update() {
             if (!game.paused) {
                 ProcessInputs ();
-                checkcollision();
+                //checkcollision();
             }
         }
-        
+
         public void hit() {
             health--;
             if (health <= 0) {
                 //game.SendMessage("gameOver");//on dit au jeu qu'on a perdu quand on meurt
-                game.SendMessage("gameOver", LocalPlayerInstance, SendMessageOptions.RequireReceiver);
+                //game.SendMessage("gameOver", LocalPlayerInstance, SendMessageOptions.RequireReceiver);
                 Destroy(this.gameObject);
             }
         }
 
         void ProcessInputs() {
+            playerXSpeed = 0;
+            playerZSpeed = 0;
             if (Input.GetKey(controlKeys["Up1"])) {
-                if (playerSpeed < MAX_SPEED) {
-                    playerSpeed += ACCEL * Time.deltaTime;
-                }
+                playerZSpeed += 1;
             } else if (Input.GetKey(controlKeys["Down1"])) {
-                if (playerSpeed > -(MAX_SPEED)) {
-                    playerSpeed -= ACCEL * Time.deltaTime;
-                }
+                playerZSpeed -= 1;
             } else if (Input.GetKey(controlKeys["Slow1"])) {
-                if (playerSpeed > 0) {
-                    playerSpeed = Math.Max(playerSpeed - ACCEL * Time.deltaTime, 0);
-                } else if (playerSpeed < 0) {
-                    playerSpeed = Math.Min(playerSpeed + ACCEL * Time.deltaTime, 0);
-                }
+                playerSpeed = 0;
             }
-            LocalPlayerInstance.transform.Translate(0, 0, playerSpeed * Time.deltaTime);
             if (Input.GetKey(controlKeys["Right1"])) {
-                LocalPlayerInstance.transform.Rotate(0,rotationSensibility * Time.deltaTime,0);
+                playerXSpeed += 1;
             }
             if (Input.GetKey(controlKeys["Left1"])) {
-                LocalPlayerInstance.transform.Rotate(0,-rotationSensibility * Time.deltaTime,0);
+                playerXSpeed -= 1;
             }
-            
+
+            var direction = new Vector3(playerXSpeed, 0, playerZSpeed);
+            if (direction != Vector3.zero) {
+                playerBody.velocity = MAX_SPEED * Time.deltaTime * direction; // TODO direction should be normalized
+            }
+            /*
             if (Input.GetKeyDown(controlKeys["Fire1"])) {
                 var laser = new Laser();
                 Instantiate(laser, transform.position + 20 * transform.forward, transform.rotation);
-            }
+            }*/
         }
 
         public void checkcollision() {

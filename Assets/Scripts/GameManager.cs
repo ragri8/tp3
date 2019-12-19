@@ -17,7 +17,7 @@ using Random = UnityEngine.Random;
 public class GameManager : MonoBehaviour {
 	
 	[Tooltip("The prefab to use for representing the player")] [SerializeField]
-	//private GameObject playerPrefab;
+	private GameObject playerPrefab;
 	//[SerializeField] private GameObject iaPrefab;
 	private GameGrid gameGrid;
 	
@@ -31,7 +31,9 @@ public class GameManager : MonoBehaviour {
 	public ProceduralMapGenerator mapGenerator;
 
 	void Start() {
-		/*if (playerPrefab == null) {
+		mapGenerator.generateMap();
+		gameGrid = mapGenerator.getGrid();
+		if (playerPrefab == null) {
 			// #Tip Never assume public properties of Components are filled up properly, always check and inform the developer of it.
 			Debug.LogError(
 				"<Color=Red><b>Missing</b></Color> playerPrefab Reference. Please set it up in GameObject 'Game Manager'",
@@ -39,14 +41,18 @@ public class GameManager : MonoBehaviour {
 		} else {
 			if (PlayerManager.LocalPlayerInstance == null) {
 				Debug.Log("We are Instantiating player");
-				Instantiate(playerPrefab, new Vector3(Random.Range(-400, 400), 0, Random.Range(-300, 300)), Quaternion.identity);
+				Instantiate(
+					playerPrefab,
+					new Vector3(
+						Random.Range(0, gameGrid.sizeX-1) * ProceduralMapGenerator.gridBoxSize + ProceduralMapGenerator.gridBoxSize / 2.0f,
+						2.5f, // haf the size of playerPrefab
+						Random.Range(0, gameGrid.sizeZ-1) * ProceduralMapGenerator.gridBoxSize + ProceduralMapGenerator.gridBoxSize / 2.0f),
+					Quaternion.identity);
 				
 			} else {
 				Debug.Log("Ignoring scene load");
 			}
-		}*/
-		mapGenerator.generateMap();
-		gameGrid = mapGenerator.getGrid();
+		}
 		loadPlayerAvatar();
 	}
 	

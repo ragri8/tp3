@@ -3,16 +3,24 @@ using System.Collections.Generic;
 
 namespace Map {
     public struct Gridbox {
-        private Guid id;
+        private int id;
         private int x;
-        private int y;
-        private List<Guid> connectedBox;
+        private int z;
+        private List<int> connectedBox;
 
-        public Gridbox(Guid id, int x, int y) {
+        public Gridbox(int id, int x, int z) {
             this.id = id;
             this.x = x;
-            this.y = y;
-            connectedBox = new List<Guid>();
+            this.z = z;
+            connectedBox = new List<int>();
+        }
+
+        public bool isConnected(int index) {
+            return connectedBox.Contains(index);
+        }
+
+        public void addConnection(int index) {
+            connectedBox.Add(index);
         }
     }
 }

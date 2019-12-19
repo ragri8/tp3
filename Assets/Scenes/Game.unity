@@ -1447,6 +1447,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   groundPrefab: {fileID: 3145356067673720547, guid: fbd13cd5a31881fb888f18620c90c25e,
     type: 3}
+  wallPrefab: {fileID: 8725700821686390688, guid: 78268678b157cea00b85d5f171f429cc,
+    type: 3}
   sizeX: 30
   sizeZ: 30
 --- !u!4 &1776995522
@@ -1547,13 +1549,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1823257886}
-  m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
-  m_LocalPosition: {x: 0, y: 3, z: 0}
+  m_LocalRotation: {x: 0.6427876, y: 0, z: 0, w: 0.7660445}
+  m_LocalPosition: {x: 50, y: 100, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+  m_LocalEulerAnglesHint: {x: 80, y: 0, z: 0}
 --- !u!1 &1946259489
 GameObject:
   m_ObjectHideFlags: 0
@@ -1630,13 +1632,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1946259489}
-  m_LocalRotation: {x: 0.38268343, y: 0, z: 0, w: 0.92387956}
-  m_LocalPosition: {x: 150, y: 100, z: 29}
+  m_LocalRotation: {x: 0.5, y: 0, z: 0, w: 0.8660254}
+  m_LocalPosition: {x: 150, y: 50, z: 29}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 45, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 60, y: 0, z: 0}
 --- !u!1001 &9196854165634514349
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1741,6 +1743,12 @@ PrefabInstance:
       propertyPath: mapGenerator
       value: 
       objectReference: {fileID: 1776995521}
+    - target: {fileID: 8428901325247516458, guid: ccc1be409de6486418809985c83fee44,
+        type: 3}
+      propertyPath: playerPrefab
+      value: 
+      objectReference: {fileID: 3700096245889203660, guid: ec4f595c80cdbed74b8e457e7d1f5286,
+        type: 3}
     - target: {fileID: -3611687841476776468, guid: ccc1be409de6486418809985c83fee44,
         type: 3}
       propertyPath: ObservedComponents.Array.size
