@@ -1,8 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-using Com.MyCompany.MyGame;
-
 public class PlayerUI : MonoBehaviour {
     private PlayerManager target;
 

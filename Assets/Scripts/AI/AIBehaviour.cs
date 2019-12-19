@@ -3,14 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-namespace Com.MyCompany.MyGame.AI
-{
-    public class AIBehaviour
-    {
+namespace AI {
+    public class AIBehaviour {
         private static string PLAYER_TAG = "Player";
-        private static float DETECTION_RANGE = 200f;
+        private static float DETECTION_RANGE = 40f;
         private static float MINIMUM_POI_RANGE = 30f;
-        private static float MINIMUM_SHOOTING_RANGE = 125f;
+        private static float MINIMUM_SHOOTING_RANGE = 1f;
         private static float MINIMUM_PRECISION_ANGLE = 3.0f;
         private static float MINIMUM_CANNON_COOLDOWN = 1f;
         private static float APPROXIMATION_FRONT_COEFFICIENT = 0.25f;
@@ -19,7 +17,7 @@ namespace Com.MyCompany.MyGame.AI
         private static bool _isSharpshooter;
         private readonly List<GameObject> _players;
         private readonly Transform _current;
-        private ActionState _actionState;
+        public ActionState _actionState;
         private Vector3 _pointOfInterest;
         private Transform _target;
         private bool _targetActive;
@@ -31,10 +29,9 @@ namespace Com.MyCompany.MyGame.AI
         
         public bool isFiring;
 
-        public AIBehaviour(Transform unit, bool isSharpshooter)
-        {
-            _current = unit;
-            _isSharpshooter = isSharpshooter;
+        public AIBehaviour(GameObject gameObject) {
+            _current = gameObject.transform;
+            _isSharpshooter = false;
             _players = new List<GameObject>(GameObject.FindGameObjectsWithTag(PLAYER_TAG));
             changeActionState(ActionState.WAITING);
             _movementRotationState = MovementRotationState.NONE;
@@ -48,8 +45,7 @@ namespace Com.MyCompany.MyGame.AI
         }
 
         // update is called once per frame
-        public void update()
-        {
+        public void update() {
             var timelapse = Time.deltaTime; 
             coolingDownCannon(timelapse);
             playStateAction(timelapse);
@@ -61,33 +57,28 @@ namespace Com.MyCompany.MyGame.AI
             return _movementRotationState;
         }
 
-        public MovementTranslationState getTranslationState()
-        {
+        public MovementTranslationState getTranslationState() {
             return _movementTranslationState;
         }
 
-        private void updateMovementState()
-        {
+        private void updateMovementState() {
             if (_actionState == ActionState.WANDERING) {
                 movementAdjustmentToObjective(_pointOfInterest, MINIMUM_POI_RANGE);
             } else if (_actionState == ActionState.APPROACHING || _actionState == ActionState.TARGETING) {
                 var target = _target.position;
-                if (_isSharpshooter)
-                {
+                if (_isSharpshooter) {
                     target = getFrontOfTarget(_target, _target.GetComponent<PlayerManager>().playerSpeed);
                 }
                 movementAdjustmentToObjective(target, MINIMUM_SHOOTING_RANGE);
                 if (_actionState == ActionState.TARGETING) {
-                    if (_movementTranslationState == MovementTranslationState.FORWARD)
-                    {
+                    if (_movementTranslationState == MovementTranslationState.FORWARD) {
                         _movementTranslationState = MovementTranslationState.HALF_FORWARD;
                     }
                 }
             }
         }
 
-        private void playStateAction(float timelapse)
-        {
+        private void playStateAction(float timelapse) {
             _actionCooldownTime -= timelapse;
             if (_actionCooldownTime > 0) {
                 resumeStateAction();
@@ -96,10 +87,8 @@ namespace Com.MyCompany.MyGame.AI
             }
         }
 
-        private void resumeStateAction()
-        {
-            switch (_actionState)
-            {
+        private void resumeStateAction() {
+            switch (_actionState) {
                 case ActionState.WANDERING:
                     resumeWanderingAction();
                     break;
@@ -113,8 +102,7 @@ namespace Com.MyCompany.MyGame.AI
         }
 
         // resume action when AI is wandering between points of interests, looking for an enemy
-        private void resumeWanderingAction()
-        {
+        private void resumeWanderingAction() {
             searchTarget();
             if (_targetActive) {
                 changeActionState(ActionState.APPROACHING);
@@ -127,11 +115,10 @@ namespace Com.MyCompany.MyGame.AI
             }
         }
 
-        private void resumeApproachAction()
-        {
+        private void resumeApproachAction() {
             if (Vector3.Distance(_current.position, _target.position) < MINIMUM_SHOOTING_RANGE) {
                 _actionCooldownTime = 0f;
-            }else {
+            } else {
                 if (_cannonCooldownTime > 0f) return;
             
                 var target = _target.position;
@@ -145,8 +132,7 @@ namespace Com.MyCompany.MyGame.AI
             }
         }
 
-        private void resumeTargetingAction()
-        {
+        private void resumeTargetingAction() {
             if (_cannonCooldownTime > 0f) return;
             
             var target = _target.position;
@@ -159,10 +145,8 @@ namespace Com.MyCompany.MyGame.AI
             }
         }
 
-        private void completeStateAction()
-        {
-            switch (_actionState)
-            {
+        private void completeStateAction() {
+            switch (_actionState) {
                 case ActionState.WAITING:
                     completeWaitingAction();
                     break;
@@ -178,8 +162,7 @@ namespace Com.MyCompany.MyGame.AI
             }
         }
 
-        private void completeWaitingAction()
-        {
+        private void completeWaitingAction() {
             searchTarget();
             if (_targetActive) {
                 changeActionState(ActionState.APPROACHING);
@@ -192,14 +175,12 @@ namespace Com.MyCompany.MyGame.AI
             }
         }
 
-        private void completeWanderingAction()
-        {
+        private void completeWanderingAction() {
             changeActionState(ActionState.WAITING);
             _actionCooldownTime = Random.Range(1f, 3f);
         }
 
-        private void completeApproachAction()
-        {
+        private void completeApproachAction() {
             var targetDistance = Vector3.Distance(_current.position, _target.position);
             if (targetDistance > DETECTION_RANGE) {
                 changeActionState(ActionState.WAITING);
@@ -213,8 +194,7 @@ namespace Com.MyCompany.MyGame.AI
             _actionCooldownTime = Random.Range(1f, 3f);
         }
 
-        private void completeTargetingAction()
-        {
+        private void completeTargetingAction() {
             var targetDistance = Vector3.Distance(_current.position, _target.position);
             if (targetDistance > DETECTION_RANGE) {
                 changeActionState(ActionState.WAITING);
@@ -227,8 +207,7 @@ namespace Com.MyCompany.MyGame.AI
             }
         }
 
-        private void searchTarget()
-        {
+        private void searchTarget() {
             var closestUnit = _current;
             var closestDistance = float.MaxValue;
             foreach (var player in _players) {
@@ -248,8 +227,7 @@ namespace Com.MyCompany.MyGame.AI
             }
         }
 
-        private Vector3 generatePointOfInterest()
-        {
+        private Vector3 generatePointOfInterest() {
             var distance = Random.Range(DETECTION_RANGE % 2, DETECTION_RANGE);
             var degreeVariation = Random.Range(-90, 90);
             var currentPosition = _current.position;
@@ -260,31 +238,26 @@ namespace Com.MyCompany.MyGame.AI
                 currentPosition.z - distance * (float)Math.Cos(orientation));
         }
 
-        private void setTarget(Transform newTarget)
-        {
+        private void setTarget(Transform newTarget) {
             _target = newTarget;
             _targetActive = true;
         }
 
-        private void forceResetTarget()
-        {
+        private void forceResetTarget() {
             _targetActive = false;
             _target = null;
-            if (_actionState != ActionState.WAITING && _actionState != ActionState.WANDERING)
-            {
+            if (_actionState != ActionState.WAITING && _actionState != ActionState.WANDERING) {
                 changeActionState(ActionState.WAITING);
                 _actionCooldownTime = Random.Range(1f, 3f);
             }
         }
 
-        private void movementAdjustmentToObjective(Vector3 objective, float minDistance)
-        {
+        private void movementAdjustmentToObjective(Vector3 objective, float minDistance) {
             var angle = alignmentToObjective(objective);
             translationToObjective(objective, angle, minDistance);
         }
 
-        private double alignmentToObjective(Vector3 objective)
-        {
+        private double alignmentToObjective(Vector3 objective) {
             var currentPosition = _current.position;
             var relativeAngle = Util.angleBetweenVec(
                 currentPosition.x,
@@ -309,8 +282,7 @@ namespace Com.MyCompany.MyGame.AI
             return relativeAngle;
         }
 
-        private bool isAligned(Vector3 objective)
-        {
+        private bool isAligned(Vector3 objective) {
             var currentPosition = _current.position;
             var relativeAngle = Util.angleBetweenVec(
                 currentPosition.x,
@@ -327,22 +299,18 @@ namespace Com.MyCompany.MyGame.AI
             return (Math.Abs(angleDifference) < MINIMUM_PRECISION_ANGLE);
         }
 
-        private Vector3 getFrontOfTarget(Transform target, float speed)
-        {
+        private Vector3 getFrontOfTarget(Transform target, float speed) {
             var objectiveMovement = APPROXIMATION_FRONT_COEFFICIENT * speed * target.forward;
             return target.position + objectiveMovement;
         }
 
-        private void coolingDownCannon(float timelapse)
-        {
-            if (_cannonCooldownTime > 0)
-            {
+        private void coolingDownCannon(float timelapse) {
+            if (_cannonCooldownTime > 0) {
                 _cannonCooldownTime -= timelapse;
             }
         }
 
-        private void translationToObjective(Vector3 objective, double relativeAngle, float minDistance)
-        {
+        private void translationToObjective(Vector3 objective, double relativeAngle, float minDistance) {
             var currentPosition = _current.position;
             var distance = Vector3.Distance(currentPosition, objective);
             if (distance < minDistance || Math.Abs(relativeAngle) > 90) {
@@ -354,14 +322,12 @@ namespace Com.MyCompany.MyGame.AI
             }
         }
 
-        private void changeActionState(ActionState newState)
-        {
+        private void changeActionState(ActionState newState) {
             _actionState = newState;
             //Debug.LogFormat("New state selected: {0}", newState.ToString());
         }
 
-        public void syncPlayer()
-        {
+        public void syncPlayer() {
             var players  = new List<GameObject>(GameObject.FindGameObjectsWithTag(PLAYER_TAG));
             foreach (var player in players) {
                 if (!_players.Contains(player)) {
@@ -372,8 +338,7 @@ namespace Com.MyCompany.MyGame.AI
             }
         }
 
-        public void removePlayer(GameObject player)
-        {
+        public void removePlayer(GameObject player) {
             _players.Remove(player);
             if (_targetActive && player.transform.Equals(_target)) {
                 forceResetTarget();

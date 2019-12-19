@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Map {
     public class GameGrid {
         private List<Gridbox> gridboxes;
         public int sizeX;
         public int sizeZ;
+        public static int gridBoxSize = 10;
 
         public GameGrid(int sizeX = 30, int sizeZ = 30) {
             this.sizeX = sizeX;
@@ -44,6 +46,19 @@ namespace Map {
             return posX + posZ * sizeX;
         }
 
+        public int realWorldCoordToIndex(float realPosX, float realPosZ, int zeroPosX, int zeroPosZ) {
+            var posX = (int) (realPosX - zeroPosX) / gridBoxSize;
+            var posZ = (int) (realPosZ - zeroPosZ) / gridBoxSize;
+            return coordToIndex(posX, posZ);
+        }
+        public Vector3 indexToRealWorldCoord(int index, float height) {
+            var pos2D = indexToCoord(index);
+            var posX = pos2D.Item1 * gridBoxSize + gridBoxSize / 2.0f;
+            var posY = height;
+            var posZ = pos2D.Item2 * gridBoxSize + gridBoxSize / 2.0f;
+            return new Vector3(posX, posY, posZ);
+        }
+
         /**
          * tuple of connexions between a gridBox and its surrounding
          * each bool represent a direction and specify if it is connected to another box
@@ -70,6 +85,25 @@ namespace Map {
                 west = gridboxes[index].isConnected(coordToIndex(posX - 1, posZ));
             }
             return new Tuple<bool, bool, bool, bool>(south, north, east, west);
+        }
+
+        public Vector3 randomPosition(float height) {
+            var index = Random.Range(0, sizeX * sizeZ - 1);
+            return indexToRealWorldCoord(index, height);
+        }
+
+        public Vector3 randomPositionInRange(int refIndex, int minRange, int maxRange, float height) {
+            var randomDistance = Random.Range(minRange, maxRange);
+            var refCoord = indexToCoord(refIndex);
+            var posX = Random.Range(
+                Math.Max(refCoord.Item1 - randomDistance, 0),
+                Math.Min(refCoord.Item1 + randomDistance, sizeX - 1));
+            var diff = Math.Abs(refCoord.Item1 - posX);
+            var posZ = Random.Range(
+                Math.Max(refCoord.Item2 - (randomDistance - diff), 0),
+                Math.Min(refCoord.Item2 + (randomDistance - diff), sizeZ - 1));
+            var index = coordToIndex(posX, posZ);
+            return indexToRealWorldCoord(index, height);
         }
     }
 }

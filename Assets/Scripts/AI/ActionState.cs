@@ -1,7 +1,5 @@
-namespace Com.MyCompany.MyGame.AI
-{
-    public enum ActionState
-    {
+namespace AI {
+    public enum ActionState {
         WAITING,
         WANDERING,
         TARGETING,

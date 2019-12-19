@@ -58,7 +58,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 5241e83f9b61bfa4692cc3f6fe791aed, type: 2}
+  - {fileID: 2100000, guid: ce3307a6a140ac17fa757d0746a637d6, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -105,7 +105,7 @@ GameObject:
   - component: {fileID: -9175622649688914008}
   m_Layer: 0
   m_Name: EnemyPrefab
-  m_TagString: Untagged
+  m_TagString: enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -154,5 +154,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   game: {fileID: 8428901325247516458, guid: ccc1be409de6486418809985c83fee44, type: 3}
+  aiBehaviour: {fileID: 4797730360777086662, guid: bc741268fdfc0a11b9a385592f49a1d6,
+    type: 3}
   isSharpshooter: 1
   destroy: 0

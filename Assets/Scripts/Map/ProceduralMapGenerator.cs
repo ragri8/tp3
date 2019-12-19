@@ -17,7 +17,6 @@ namespace Map {
         private static int EAST_WALL_ORIENTATION = 90;
         private static int WEST_WALL_ORIENTATION = 270;
         
-        public static int gridBoxSize = 10;
         private GameGrid gameGrid;
         private int seed;
         private List<int> activeBoxes;
@@ -124,7 +123,10 @@ namespace Map {
 
         private void generateGround(GameObject map) {
             groundPrefab.transform.localScale = new Vector3(sizeX, 1, sizeZ);
-            var position = new Vector3((float)(sizeX * gridBoxSize / 2.0), 0, (float)(sizeZ * gridBoxSize / 2.0));
+            var position = new Vector3(
+                (float)(sizeX * GameGrid.gridBoxSize / 2.0),
+                0,
+                (float)(sizeZ * GameGrid.gridBoxSize / 2.0));
             Instantiate(groundPrefab, position, Quaternion.identity, map.transform);
         }
 
@@ -136,8 +138,8 @@ namespace Map {
                 if (!connections.Item1) {
                     generateWall(
                         map,
-                        coord.Item1 * gridBoxSize + gridBoxSize / 2.0f,
-                        coord.Item2 * gridBoxSize,
+                        coord.Item1 * GameGrid.gridBoxSize + GameGrid.gridBoxSize / 2.0f,
+                        coord.Item2 * GameGrid.gridBoxSize,
                         SOUTH_WALL_ORIENTATION);
                     
                 }
@@ -145,16 +147,16 @@ namespace Map {
                 if (!connections.Item2) {
                     generateWall(
                         map,
-                        coord.Item1 * gridBoxSize + gridBoxSize / 2.0f,
-                        coord.Item2 * gridBoxSize + gridBoxSize,
+                        coord.Item1 * GameGrid.gridBoxSize + GameGrid.gridBoxSize / 2.0f,
+                        coord.Item2 * GameGrid.gridBoxSize + GameGrid.gridBoxSize,
                         NORTH_WALL_ORIENTATION);
                 }
                 // east
                 if (!connections.Item3) {
                     generateWall(
                         map,
-                        coord.Item1 * gridBoxSize + gridBoxSize,
-                        coord.Item2 * gridBoxSize + gridBoxSize / 2.0f,
+                        coord.Item1 * GameGrid.gridBoxSize + GameGrid.gridBoxSize,
+                        coord.Item2 * GameGrid.gridBoxSize + GameGrid.gridBoxSize / 2.0f,
                         EAST_WALL_ORIENTATION);
                     
                 }
@@ -162,15 +164,15 @@ namespace Map {
                 if (!connections.Item4) {
                     generateWall(
                         map,
-                        coord.Item1 * gridBoxSize,
-                        coord.Item2 * gridBoxSize + gridBoxSize / 2.0f,
+                        coord.Item1 * GameGrid.gridBoxSize,
+                        coord.Item2 * GameGrid.gridBoxSize + GameGrid.gridBoxSize / 2.0f,
                         WEST_WALL_ORIENTATION);
                 }
             }
         }
 
         private void generateWall(GameObject map, float posX, float posZ, float orientation) {
-            var position = new Vector3(posX, gridBoxSize / 2.0f, posZ);
+            var position = new Vector3(posX, GameGrid.gridBoxSize / 2.0f, posZ);
             var orientationVec = Quaternion.Euler(new Vector3(90, 0, orientation));
             Instantiate(wallPrefab, position, orientationVec, map.transform);
         }

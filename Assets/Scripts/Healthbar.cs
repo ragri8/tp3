@@ -1,5 +1,4 @@
-﻿using Com.MyCompany.MyGame;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 /**
  * va servir à afficher la barre de vie du joueur en bas a gauche dans le jeu

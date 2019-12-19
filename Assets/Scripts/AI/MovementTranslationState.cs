@@ -1,7 +1,5 @@
-namespace Com.MyCompany.MyGame.AI
-{
-    public enum MovementTranslationState
-    {
+namespace AI {
+    public enum MovementTranslationState {
         FORWARD,
         HALF_FORWARD,
         SLOW,
