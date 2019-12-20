@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,6 +7,7 @@ public class Casing : MonoBehaviour
 {
     [SerializeField] private Light light;
     [SerializeField] private AudioSource sound;
+    [SerializeField] private AudioSource fire;
     private float tdebut=0;
     // Start is called before the first frame update
     void Start()
@@ -35,12 +36,12 @@ public class Casing : MonoBehaviour
         }
     }
 
-    private void activate(Vector3 pos)
+    private void activate()
     {
-        transform.position = pos;
         gameObject.SetActive(true);
         gameObject.GetComponent<Rigidbody>().velocity=Vector3.zero;
         light.enabled = true;
         tdebut = Time.time;
+        fire.Play();
     }
 }
