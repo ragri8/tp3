@@ -16,6 +16,7 @@ public class PlayerManager : MonoBehaviour {
     public float playerXSpeed;
     public float playerZSpeed;
     private bool lobby=true;
+    [SerializeField]
     private Rigidbody playerBody;
     private int longeur = 15;
     private int largeur = 10;
@@ -82,7 +83,8 @@ public class PlayerManager : MonoBehaviour {
         game = GameObject.Find("Game Manager").GetComponent<GameManager>();
         healthbar = Instantiate(this.healthbar);
         healthbar.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
-
+        playerBody.useGravity = true;
+        
         CameraWork _cameraWork = this.gameObject.GetComponent<CameraWork>();
         if (_cameraWork != null) {
             _cameraWork.OnStartFollowing();
