@@ -43,8 +43,6 @@ public class PlayerManager : MonoBehaviour {
     }
     
     void Start() {
-        CameraWork _cameraWork = this.gameObject.GetComponent<CameraWork>();
-
         playerSpeed = 0;
         controlKeys.Add("Up1", (KeyCode)System.Enum.Parse(typeof(KeyCode), PlayerPrefs.GetString("Up1","W")));
         controlKeys.Add("Down1", (KeyCode)System.Enum.Parse(typeof(KeyCode), PlayerPrefs.GetString("Down1","S")));
@@ -54,9 +52,9 @@ public class PlayerManager : MonoBehaviour {
         controlKeys.Add("Fire1", (KeyCode)System.Enum.Parse(typeof(KeyCode), PlayerPrefs.GetString("Fire1","Space")));
         rotationSensibility = PlayerPrefs.GetInt("Sensibility1", 100);
         
-        if (_cameraWork != null) {
-             _cameraWork.OnStartFollowing();
-        }
+        //if (_cameraWork != null) {
+        //     _cameraWork.OnStartFollowing();
+        //}
     }
 
     void Update() {
@@ -84,6 +82,11 @@ public class PlayerManager : MonoBehaviour {
         game = GameObject.Find("Game Manager").GetComponent<GameManager>();
         healthbar = Instantiate(this.healthbar);
         healthbar.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
+
+        CameraWork _cameraWork = this.gameObject.GetComponent<CameraWork>();
+        if (_cameraWork != null) {
+            _cameraWork.OnStartFollowing();
+        }
     }
     
     private void hit() {
