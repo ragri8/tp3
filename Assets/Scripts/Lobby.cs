@@ -14,6 +14,7 @@ public class Lobby : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             Application.Quit();
+            
         }
     }
     public void OnLeftRoom() { 

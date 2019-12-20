@@ -10,12 +10,12 @@ public class PlayerManager : MonoBehaviour {
     public static GameObject LocalPlayerInstance;
     [Tooltip("The Player's UI GameObject Prefab")]
     [SerializeField]
-    public GameObject PlayerUiPrefab;
     private GameManager game;
     public GameObject healthbar;
     public float playerSpeed;
     public float playerXSpeed;
     public float playerZSpeed;
+    private bool lobby=true;
     private Rigidbody playerBody;
     private int longeur = 15;
     private int largeur = 10;
@@ -23,21 +23,17 @@ public class PlayerManager : MonoBehaviour {
     public float MAX_SPEED = 10.0f;
     private float invincibilityFrames = 0.0f;
     private static float maxInvincibilityFrames = 2.0f;
-    
-
+    private Animator anim;
     private Dictionary<string, KeyCode> controlKeys = new Dictionary<string, KeyCode>();
     private float rotationSensibility;
 
-    void Awake() {
+    void Awake()
+    {
+        anim = GetComponent<Animator>();
         LocalPlayerInstance = gameObject;
-        game = GameObject.Find("Game Manager").GetComponent<GameManager>();
-        healthbar = Instantiate(this.healthbar);
-        healthbar.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
-
+        anim.SetBool("Static_b",false);
         if (tag.Equals("Player")) {
-            GameObject _uiGo = Instantiate(this.PlayerUiPrefab); //creation et lien avec le UI pour afficher le nom du joueur
-            _uiGo.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
-            
+
             GameObject[] enemies = GameObject.FindGameObjectsWithTag("enemy");
             foreach (GameObject enemy in enemies) {
                     enemy.SendMessage("syncPlayer"); // s'assure que les bots sont synchronisé avec le joueur
@@ -64,7 +60,7 @@ public class PlayerManager : MonoBehaviour {
     }
 
     void Update() {
-        if (!game.paused) {
+        if (!lobby&&!game.paused) {
             ProcessInputs ();
             if (invincibilityFrames > 0) {
                 invincibilityFrames -= Time.deltaTime;
@@ -82,6 +78,14 @@ public class PlayerManager : MonoBehaviour {
         }
     }
 
+    public void  Debutjeu()
+    {
+        lobby = false;
+        game = GameObject.Find("Game Manager").GetComponent<GameManager>();
+        healthbar = Instantiate(this.healthbar);
+        healthbar.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
+    }
+    
     private void hit() {
         health--;
         invincibilityFrames = maxInvincibilityFrames;
@@ -109,8 +113,9 @@ public class PlayerManager : MonoBehaviour {
         }
 
         var direction = new Vector3(playerXSpeed, 0, playerZSpeed);
+        anim.SetFloat("Speed_f",playerZSpeed);
         if (direction != Vector3.zero) {
-            playerBody.velocity = MAX_SPEED * direction; // TODO direction should be normalized
+            //playerBody.velocity = MAX_SPEED * direction; // TODO direction should be normalized
         }
         /*
         if (Input.GetKeyDown(controlKeys["Fire1"])) {
@@ -118,16 +123,5 @@ public class PlayerManager : MonoBehaviour {
             Instantiate(laser, transform.position + 20 * transform.forward, transform.rotation);
         }*/
     }
-
-    public void checkcollision() {
-        GameObject[] lasers= GameObject.FindGameObjectsWithTag("Laser");
-        foreach (GameObject obj in lasers) {
-            Laser laser = obj.GetComponent<Laser>();
-            Vector3 poslocal = transform.InverseTransformPoint(obj.transform.position);
-            if (poslocal.x < largeur && poslocal.x > -largeur && poslocal.z < longeur && poslocal.z > -longeur) {
-                hit();
-                laser.hit();
-            }
-        }
-    }
+    
 }

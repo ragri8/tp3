@@ -1,18 +1,18 @@
 using System;
+using System.Collections;
 using AI;
 using UnityEngine;
 
 public class BotManager : MonoBehaviour {
     private static float MAX_SPEED = 7.0f;
     private static float TRANSLATION_ACCELERATION = 30.0f;
-    private static float ROTATION_SPEED = 120.0f;
+    private static float ROTATION_SPEED = 20.0f;
     
     private GameObject LocalPlayerInstance;
     private AIBehaviour aiBehaviour;
     public GameManager game;
     public bool isSharpshooter = true;
-    
-    private Rigidbody body;
+    private Animator anim;
     private Transform transform;
     private bool IsFiring;
     private float _speed;
@@ -24,9 +24,9 @@ public class BotManager : MonoBehaviour {
     public int hp;
     
     void Awake() {
+        anim = GetComponent<Animator>();
         game = GameObject.Find("Game Manager").GetComponent<GameManager>();
         LocalPlayerInstance = gameObject;
-        body = LocalPlayerInstance.GetComponent<Rigidbody>();
         transform = LocalPlayerInstance.GetComponent<Transform>();
         aiBehaviour = new AIBehaviour(gameObject);
         hp = 1;
@@ -82,11 +82,18 @@ public class BotManager : MonoBehaviour {
     public void hit() {
         hp--;
         if (hp <= 0) {
-            Destroy();
+            anim.SetBool("damage",true);
         }
     }
 
-    public void Destroy() {
+    IEnumerator Death() 
+    {
+        yield return new WaitForSeconds(5);
+        Destroy(gameObject);
+    }
+
+    public IEnumerator Destroy() {
+        yield return new WaitForSeconds(5);
         Destroy(gameObject);
         game.enemyDestroyed();
     }
@@ -107,17 +114,19 @@ public class BotManager : MonoBehaviour {
         } else {
             _speed = 0.0f;
         }
+        anim.SetFloat("speed",_speed);
         if (_speed > 0.0f) {
             var angle = transform.eulerAngles.y;
             var speedX = (float) (_speed * Math.Sin(Util.toRad(angle)));
             var speedZ = (float) (_speed * Math.Cos(Util.toRad(angle)));
-            var velocity = new Vector3(speedX, 0, speedZ);
-            body.velocity = velocity;
+            //var velocity = new Vector3(speedX, 0, speedZ);
+            //body.velocity = velocity;
         }
         if (aiBehaviour.getRotationState() == MovementRotationState.LEFT) {
-            LocalPlayerInstance.transform.Rotate(0,ROTATION_SPEED * timelapse,0);
+            anim.SetFloat("angularspeed",ROTATION_SPEED);
+            //LocalPlayerInstance.transform.Rotate(0,ROTATION_SPEED * timelapse,0);
         } else if (aiBehaviour.getRotationState() == MovementRotationState.RIGHT) {
-            LocalPlayerInstance.transform.Rotate(0,-ROTATION_SPEED * timelapse,0);
+            //LocalPlayerInstance.transform.Rotate(0,-ROTATION_SPEED * timelapse,0);
         }
 
         /*

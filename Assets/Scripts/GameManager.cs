@@ -13,13 +13,11 @@ using UnityEngine.UI;
 /// </summary>
 public class GameManager : MonoBehaviour {
 	
-	[Tooltip("The prefab to use for representing the player")] [SerializeField]
-	private GameObject playerPrefab;
 	[Tooltip("The prefab to use for representing the enemy")] [SerializeField]
 	private GameObject enemyPrefab;
 	//[SerializeField] private GameObject iaPrefab;
 	private GameGrid gameGrid;
-	private GameObject player; // for fast access
+	private GameObject player;
 	private GameObject map;
 
 	public bool isGameOver = false;
@@ -44,7 +42,10 @@ public class GameManager : MonoBehaviour {
 		mapGenerator.setSeed(seed);
 		map = mapGenerator.generateMap();
 		gameGrid = mapGenerator.getGrid();
-		if (playerPrefab == null) {
+		player=GameObject.Find("player");
+		player.SendMessage("Debutjeu");
+		if (player == null) {
+			// #Tip Never assume public properties of Components are filled up properly, always check and inform the developer of it.
 			Debug.LogError(
 				"<Color=Red><b>Missing</b></Color> objet player introuvable",
 				this);
@@ -93,7 +94,8 @@ public class GameManager : MonoBehaviour {
 	}
 
 	private void loadPlayerAvatar() {
-        
+		var playerManager = FindObjectOfType<PlayerManager>();
+		playerManager.Debutjeu();
 	}
 
 	private void spawningHandler() {
