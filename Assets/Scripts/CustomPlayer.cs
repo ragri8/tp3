@@ -12,6 +12,7 @@ public class CustomPlayer : MonoBehaviour
     public Slider weight;
     public Slider size;
     public GameObject player;
+    public GameObject gun;
     public GameObject[] apparences;
     public Texture2D[] textures;
     public Transform hip;
@@ -66,6 +67,7 @@ public class CustomPlayer : MonoBehaviour
         armR.localScale=new Vector3(weightValue,1,weightValue);
         legL.localScale=new Vector3(1,weightValue,weightValue);
         legR.localScale=new Vector3(1,weightValue,weightValue);
+        gun.transform.localScale=new Vector3(1/weightValue, 1, 1/weightValue)*2/sizeValue;
     }
 
     public void updateTexture(int nbapparence,bool changecolor)

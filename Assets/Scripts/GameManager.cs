@@ -46,20 +46,11 @@ public class GameManager : MonoBehaviour {
 		gameGrid = mapGenerator.getGrid();
 		if (playerPrefab == null) {
 			Debug.LogError(
-				"<Color=Red><b>Missing</b></Color> playerPrefab Reference. Please set it up in GameObject 'Game Manager'",
+				"<Color=Red><b>Missing</b></Color> objet player introuvable",
 				this);
 		} else {
-			if (PlayerManager.LocalPlayerInstance == null) {
-				Debug.Log("We are Instantiating player");
-				Instantiate(
-					playerPrefab,
-					gameGrid.randomPosition(playerPrefab.transform.GetChild(0).lossyScale.y / 2.0f),
-					Quaternion.identity);
-			} else {
-				Debug.Log("Ignoring scene load");
-			}
+			player.transform.position = gameGrid.randomPosition(player.transform.GetChild(0).lossyScale.y / 2.0f);
 		}
-		player = GameObject.FindGameObjectWithTag("Player");
 		loadPlayerAvatar();
 	}
 	
