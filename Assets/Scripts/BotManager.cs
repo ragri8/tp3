@@ -20,7 +20,7 @@ public class BotManager : MonoBehaviour {
     private int largeur=7;
     private int longeurplayer = 15;
     private int largeurplayer = 10;
-    public bool destroy=false;
+    public bool dead = false;
     public int hp;
     
     void Awake() {
@@ -29,7 +29,7 @@ public class BotManager : MonoBehaviour {
         LocalPlayerInstance = gameObject;
         transform = LocalPlayerInstance.GetComponent<Transform>();
         aiBehaviour = new AIBehaviour(gameObject);
-        hp = 1;
+        hp = 2;
     }
     
     void Update() {
@@ -51,12 +51,14 @@ public class BotManager : MonoBehaviour {
         if (hp > 0) {
             anim.SetBool("damage", true);
         } else {
-            Death();
+            StartCoroutine(Death());
         }
     }
 
     IEnumerator Death() {
-        // TODO call death animation
+        anim.SetBool("death", true);
+        dead = true;
+        gameObject.GetComponent<CapsuleCollider>().enabled = false;
         yield return new WaitForSeconds(5);
         Destroy(gameObject);
         game.enemyDestroyed();

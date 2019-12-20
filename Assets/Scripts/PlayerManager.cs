@@ -5,6 +5,8 @@ using System.Collections.Generic;
 
 public class PlayerManager : MonoBehaviour {
     
+    [Tooltip("The prefab to use for representing a bullet")] [SerializeField]
+    private GameObject bulletPrefab;
     bool IsFiring;
     [Tooltip("The local player instance. Use this to know if the local player is represented in the Scene")]
     public static GameObject LocalPlayerInstance;
@@ -26,6 +28,7 @@ public class PlayerManager : MonoBehaviour {
     private static float maxInvincibilityFrames = 2.0f;
     private Animator anim;
     private bool shoot;
+    private bool hasShot = false;
     private Dictionary<string, KeyCode> controlKeys = new Dictionary<string, KeyCode>();
     private float rotationspeed=130;
     private float rotationSensibility;
@@ -63,7 +66,16 @@ public class PlayerManager : MonoBehaviour {
         anim.SetFloat("Speed_f", playerZSpeed);
         transform.Rotate(0, rotationspeed*Time.deltaTime*playerXSpeed, 0);
         dirt.SetActive(anim.GetCurrentAnimatorStateInfo(0).IsName("Run"));
-        
+        if (anim.GetCurrentAnimatorStateInfo(3).IsName("shoot")) {
+            //Debug.Log("Shooting?");
+            if (!hasShot) {
+                //Debug.Log("Shooting!!!");
+                hasShot = true;
+                shootBullet();
+            }
+        } else {
+            hasShot = false;
+        }
     }
 
     private void LateUpdate() {
@@ -79,7 +91,9 @@ public class PlayerManager : MonoBehaviour {
         }
 
         if (collide.gameObject.CompareTag(Global.ENEMY_TAG)) {
-            hit();
+            if (!collide.gameObject.GetComponent<BotManager>().dead) {
+                hit();
+            }
         }
     }
 
@@ -107,6 +121,13 @@ public class PlayerManager : MonoBehaviour {
             game.gameOver(LocalPlayerInstance);
             //Destroy(this.gameObject);
         }
+    }
+
+    public void shootBullet() {
+        var playerTransform = LocalPlayerInstance.transform;
+        var gunPosition = gun.transform.position;
+        var position = gunPosition + gun.transform.forward * 0.35f;
+        Instantiate(bulletPrefab, position, playerTransform.rotation);
     }
 
     private void ProcessInputs() {
