@@ -19,30 +19,32 @@ public class GameManager : MonoBehaviour {
 	private GameObject enemyPrefab;
 	//[SerializeField] private GameObject iaPrefab;
 	private GameGrid gameGrid;
-	
+	private GameObject player; // for fast access
+	private GameObject map;
+
+	public bool isGameOver = false;
 	public GameObject pausepanel;
 	public GameObject gameOverPanel;
-	public Text vague;
+	public Text enemyKilledDisplayText;
 	public bool paused = false;
-	public int nbvague = 0;
 	private int nbrEnemies = 0;
 	private int maxEnemies = 3;
 	private int enemyKilled = 0;
 	private float respawnCooldown = 0;
 	private float minimumRespawnTime = 3;
-	public int minEnemyRangeSpawn = 6;
-	public int maxEnemyRangeSpawn = 10;
+	public int minEnemyRangeSpawn = 5;
+	public int maxEnemyRangeSpawn = 8;
 	public float timeBasedEnemyIncrease = 5;
-	public static float timeStartBasedEnemyIncrease = 15;
+	private const float TIME_ENEMY_INCREASE_VALUE = 15;
 	
 	public int seed = 42;
 	public ProceduralMapGenerator mapGenerator;
 
 	void Start() {
-		mapGenerator.generateMap();
+		mapGenerator.setSeed(seed);
+		map = mapGenerator.generateMap();
 		gameGrid = mapGenerator.getGrid();
 		if (playerPrefab == null) {
-			// #Tip Never assume public properties of Components are filled up properly, always check and inform the developer of it.
 			Debug.LogError(
 				"<Color=Red><b>Missing</b></Color> playerPrefab Reference. Please set it up in GameObject 'Game Manager'",
 				this);
@@ -57,12 +59,13 @@ public class GameManager : MonoBehaviour {
 				Debug.Log("Ignoring scene load");
 			}
 		}
+		player = GameObject.FindGameObjectWithTag("Player");
 		loadPlayerAvatar();
 	}
 	
 	void Update() {
 		pausepanel.SetActive(paused);//affichage au non du panel de la pause et du numero de la vague
-		vague.text = "Wave " + nbvague;
+		enemyKilledDisplayText.text = "Enemies killed: " + enemyKilled;
 		if (Input.GetKeyDown(KeyCode.Escape)) {
 			if (paused) {
 				Continue(); //on demande au gameManager de tout les joueur d'effectuer la fonction Continue ou Pause
@@ -71,19 +74,14 @@ public class GameManager : MonoBehaviour {
 			}
 		}
 
-		if (!paused) {
-			spawninHandler();
+		if (!paused && !isGameOver) {
+			spawningHandler();
 		}
-		
-		//if (GameObject.FindGameObjectsWithTag("enemy").Length == 0) {
-		//	spawnVague();
-		//}
 	}
 
 	public void QuitApplication() {
-		// Application.Quit();
 		SceneManager.LoadScene("Launcher");
-		
+		deleteAll();
 	}
 
 	public void Pause() {
@@ -94,25 +92,20 @@ public class GameManager : MonoBehaviour {
 		paused = false;
 	}
 
-	private void gameOver(GameObject player) {
+	public void gameOver(GameObject player) {
 		gameOverPanel.SetActive(true);//on affiche juste le panel de gameOver
-	}
-
-	private void spawnVague() {
-		nbvague++;
-
-		Debug.Log("vague" + nbvague);
-		/*int nbenemy = (int) ((Math.Pow(nbvague, 1.5) + nbvague) / 2);
-		for (int i = 0; i < nbenemy; i++) {
-			Instantiate(iaPrefab, new Vector3(Random.Range(-400, 400), 0, Random.Range(-300, 300)), Quaternion.identity);
-		}*/
+		isGameOver = true;
+		var enemies = FindObjectsOfType<BotManager>();
+		foreach (BotManager enemy in enemies) {
+			enemy.removePlayer(player);
+		}
 	}
 
 	private void loadPlayerAvatar() {
         
 	}
 
-	private void spawninHandler() {
+	private void spawningHandler() {
 		timeBasedEnemyIncrease -= Time.deltaTime;
 		if (respawnCooldown > 0) {
 			respawnCooldown -= Time.deltaTime;
@@ -121,16 +114,16 @@ public class GameManager : MonoBehaviour {
 			if (nbrEnemies < maxEnemies) {
 				timeBasedEnemyIncrease = 1;
 			}
-			timeBasedEnemyIncrease = timeStartBasedEnemyIncrease;
+			timeBasedEnemyIncrease = TIME_ENEMY_INCREASE_VALUE;
 		}
 		if (timeBasedEnemyIncrease <= 0) {
 			maxEnemies++;
-			timeBasedEnemyIncrease = timeStartBasedEnemyIncrease;
+			timeBasedEnemyIncrease = TIME_ENEMY_INCREASE_VALUE;
 		}
 	}
 
 	private void generateEnemies(int nbr) {
-		var playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
+		var playerTransform = player.transform;
 		var playerPos = playerTransform.position;
 		var playerIndexPos = gameGrid.realWorldCoordToIndex(
 			playerPos.x,
@@ -157,5 +150,13 @@ public class GameManager : MonoBehaviour {
 		if (respawnCooldown <= 0) {
 			respawnCooldown = minimumRespawnTime;
 		}
+	}
+
+	private void deleteAll() {
+		var enemies = FindObjectsOfType<BotManager>();
+		foreach (BotManager enemy in enemies) {
+			enemy.Destroy();
+		}
+		Destroy(map);
 	}
 }

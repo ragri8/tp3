@@ -27,7 +27,6 @@ public class PlayerManager : MonoBehaviour {
 
     private Dictionary<string, KeyCode> controlKeys = new Dictionary<string, KeyCode>();
     private float rotationSensibility;
-    private static string ENEMY_TAG = "enemy";
 
     void Awake() {
         LocalPlayerInstance = gameObject;
@@ -78,7 +77,7 @@ public class PlayerManager : MonoBehaviour {
             return;
         }
 
-        if (collide.gameObject.CompareTag(ENEMY_TAG)) {
+        if (collide.gameObject.CompareTag(Global.ENEMY_TAG)) {
             hit();
         }
     }
@@ -87,9 +86,8 @@ public class PlayerManager : MonoBehaviour {
         health--;
         invincibilityFrames = maxInvincibilityFrames;
         if (health <= 0) {
-            //game.SendMessage("gameOver");//on dit au jeu qu'on a perdu quand on meurt
-            //game.SendMessage("gameOver", LocalPlayerInstance, SendMessageOptions.RequireReceiver);
             Destroy(this.gameObject);
+            game.gameOver(LocalPlayerInstance);
         }
     }
 

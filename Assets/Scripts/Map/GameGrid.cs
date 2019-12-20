@@ -6,8 +6,8 @@ using Random = UnityEngine.Random;
 namespace Map {
     public class GameGrid {
         private List<Gridbox> gridboxes;
-        public int sizeX;
-        public int sizeZ;
+        private int sizeX;
+        private int sizeZ;
         public static int gridBoxSize = 10;
 
         public GameGrid(int sizeX = 30, int sizeZ = 30) {
@@ -98,10 +98,15 @@ namespace Map {
             var posX = Random.Range(
                 Math.Max(refCoord.Item1 - randomDistance, 0),
                 Math.Min(refCoord.Item1 + randomDistance, sizeX - 1));
-            var diff = Math.Abs(refCoord.Item1 - posX);
-            var posZ = Random.Range(
-                Math.Max(refCoord.Item2 - (randomDistance - diff), 0),
-                Math.Min(refCoord.Item2 + (randomDistance - diff), sizeZ - 1));
+            var remaining = randomDistance - Math.Abs(refCoord.Item1 - posX);
+            var posZPossibilities = new List<int>();
+            if (refCoord.Item2 - remaining >= 0) {
+                posZPossibilities.Add(refCoord.Item2 - remaining);
+            }
+            if (refCoord.Item2 + remaining < sizeZ) {
+                posZPossibilities.Add(refCoord.Item2 + remaining);
+            }
+            var posZ = posZPossibilities[Random.Range(0, posZPossibilities.Count - 1)];
             var index = coordToIndex(posX, posZ);
             return indexToRealWorldCoord(index, height);
         }

@@ -26,6 +26,11 @@ namespace Map {
         public ProceduralMapGenerator(int seed) {
             this.seed = seed;
         }
+
+        public void setSeed(int seed) {
+            this.seed = seed;
+        }
+        
         public GameObject generateMap() {
             reset();
             gameGrid = new GameGrid();

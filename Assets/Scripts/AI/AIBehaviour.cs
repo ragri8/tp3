@@ -313,9 +313,9 @@ namespace AI {
         private void translationToObjective(Vector3 objective, double relativeAngle, float minDistance) {
             var currentPosition = _current.position;
             var distance = Vector3.Distance(currentPosition, objective);
-            if (distance < minDistance || Math.Abs(relativeAngle) > 90) {
+            if (distance < minDistance || Math.Abs(relativeAngle) > 60) {
                 _movementTranslationState = MovementTranslationState.SLOW;
-            } else if (Math.Abs(relativeAngle) > 40 || distance < minDistance * 1.5) {
+            } else if (Math.Abs(relativeAngle) > 30 || distance < minDistance * 1.5) {
                 _movementTranslationState = MovementTranslationState.HALF_FORWARD;
             } else {
                 _movementTranslationState = MovementTranslationState.FORWARD;
@@ -325,17 +325,6 @@ namespace AI {
         private void changeActionState(ActionState newState) {
             _actionState = newState;
             //Debug.LogFormat("New state selected: {0}", newState.ToString());
-        }
-
-        public void syncPlayer() {
-            var players  = new List<GameObject>(GameObject.FindGameObjectsWithTag(PLAYER_TAG));
-            foreach (var player in players) {
-                if (!_players.Contains(player)) {
-                    _players.Add(player);
-                    // Debug.Log("New player added");
-                    // Debug.LogFormat("Number of players found: {0}", _players.Count);
-                }
-            }
         }
 
         public void removePlayer(GameObject player) {

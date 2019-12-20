@@ -1351,7 +1351,7 @@ GameObject:
   - component: {fileID: 1752986151}
   - component: {fileID: 1752986150}
   m_Layer: 5
-  m_Name: Vagues
+  m_Name: enemyKilledTextBox
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1374,7 +1374,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 316, y: -222}
-  m_SizeDelta: {x: 160, y: 60}
+  m_SizeDelta: {x: 300, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1752986150
 MonoBehaviour:
@@ -1407,7 +1407,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Wave 1 '
+  m_Text: 'Enemy killed: 0'
 --- !u!222 &1752986151
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1755,6 +1755,16 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 7029218930895180081, guid: c08f4674553ac5509be77d110ecb0be6,
         type: 3}
+    - target: {fileID: 8428901325247516458, guid: ccc1be409de6486418809985c83fee44,
+        type: 3}
+      propertyPath: enemyKilledDisplayText
+      value: 
+      objectReference: {fileID: 1752986150}
+    - target: {fileID: 8428901325247516458, guid: ccc1be409de6486418809985c83fee44,
+        type: 3}
+      propertyPath: gameOverPanel
+      value: 
+      objectReference: {fileID: 1080811758}
     - target: {fileID: -3611687841476776468, guid: ccc1be409de6486418809985c83fee44,
         type: 3}
       propertyPath: ObservedComponents.Array.size

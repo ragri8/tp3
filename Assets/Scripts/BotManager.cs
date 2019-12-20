@@ -80,8 +80,19 @@ public class BotManager : MonoBehaviour {
         } 
     }
     public void hit() {
+        hp--;
+        if (hp <= 0) {
+            Destroy();
+        }
+    }
+
+    public void Destroy() {
         Destroy(gameObject);
         game.enemyDestroyed();
+    }
+
+    public void removePlayer(GameObject player) {
+        aiBehaviour.removePlayer(player);
     }
     
     void ProcessInputs() {
@@ -93,8 +104,10 @@ public class BotManager : MonoBehaviour {
             _speed = MAX_SPEED / 2.0f;
         } else if (aiBehaviour.getTranslationState() == MovementTranslationState.SLOW) {
             _speed = 0.0f;
+        } else {
+            _speed = 0.0f;
         }
-        if (_speed != 0.0f) {
+        if (_speed > 0.0f) {
             var angle = transform.eulerAngles.y;
             var speedX = (float) (_speed * Math.Sin(Util.toRad(angle)));
             var speedZ = (float) (_speed * Math.Cos(Util.toRad(angle)));
