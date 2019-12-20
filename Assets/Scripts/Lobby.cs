@@ -6,9 +6,10 @@ using UnityEngine.UI;
 /**
  * script pour la gestion de la scene lobby ou l'on attend les joueurs avant de commencer la parte
  */
-public class Lobby : MonoBehaviour { 
-  
-    
+public class Lobby : MonoBehaviour
+{
+
+    public GameObject player;
     void Update() {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
@@ -21,6 +22,7 @@ public class Lobby : MonoBehaviour {
     
     public void clickLaunch()
     {
+        DontDestroyOnLoad(player);
         SceneManager.LoadScene("Game");
     }
 } 

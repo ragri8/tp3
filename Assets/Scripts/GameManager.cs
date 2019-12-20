@@ -13,13 +13,11 @@ using UnityEngine.UI;
 /// </summary>
 public class GameManager : MonoBehaviour {
 	
-	[Tooltip("The prefab to use for representing the player")] [SerializeField]
-	private GameObject playerPrefab;
 	[Tooltip("The prefab to use for representing the enemy")] [SerializeField]
 	private GameObject enemyPrefab;
 	//[SerializeField] private GameObject iaPrefab;
 	private GameGrid gameGrid;
-	
+	private GameObject player;
 	public GameObject pausepanel;
 	public GameObject gameOverPanel;
 	public Text vague;
@@ -41,21 +39,15 @@ public class GameManager : MonoBehaviour {
 	void Start() {
 		mapGenerator.generateMap();
 		gameGrid = mapGenerator.getGrid();
-		if (playerPrefab == null) {
+		player=GameObject.Find("player");
+		if (player == null) {
 			// #Tip Never assume public properties of Components are filled up properly, always check and inform the developer of it.
 			Debug.LogError(
-				"<Color=Red><b>Missing</b></Color> playerPrefab Reference. Please set it up in GameObject 'Game Manager'",
+				"<Color=Red><b>Missing</b></Color> objet player introuvable",
 				this);
-		} else {
-			if (PlayerManager.LocalPlayerInstance == null) {
-				Debug.Log("We are Instantiating player");
-				Instantiate(
-					playerPrefab,
-					gameGrid.randomPosition(playerPrefab.transform.GetChild(0).lossyScale.y / 2.0f),
-					Quaternion.identity);
-			} else {
-				Debug.Log("Ignoring scene load");
-			}
+		} else
+		{
+			player.transform.position = gameGrid.randomPosition(player.transform.GetChild(0).lossyScale.y / 2.0f);
 		}
 		loadPlayerAvatar();
 	}
