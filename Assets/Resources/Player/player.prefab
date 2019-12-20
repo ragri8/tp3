@@ -1219,6 +1219,7 @@ GameObject:
   - component: {fileID: 6385045574620371143}
   - component: {fileID: 5016092980077514018}
   - component: {fileID: -7451690919956153206}
+  - component: {fileID: 3114803928908219040}
   m_Layer: 0
   m_Name: player
   m_TagString: Player
@@ -1267,7 +1268,7 @@ Animator:
   m_Controller: {fileID: 9100000, guid: 022cd8e9b1d113b41905bcb401343e62, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
-  m_ApplyRootMotion: 0
+  m_ApplyRootMotion: 1
   m_LinearVelocityBlending: 0
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
@@ -1312,7 +1313,7 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 80
+  m_Constraints: 112
   m_CollisionDetection: 0
 --- !u!136 &5016092980077514018
 CapsuleCollider:
@@ -1342,6 +1343,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   height: 30
   zCorrection: -15
+--- !u!81 &3114803928908219040
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5877900412355919305}
+  m_Enabled: 1
 --- !u!1 &5877900412355919309
 GameObject:
   m_ObjectHideFlags: 0
