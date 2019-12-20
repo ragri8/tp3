@@ -677,6 +677,7 @@ GameObject:
   - component: {fileID: 5483572225188834029}
   - component: {fileID: 5483572225179305251}
   - component: {fileID: -8039495520058098778}
+  - component: {fileID: 1061346092090857165}
   m_Layer: 0
   m_Name: EnemyPrefab
   m_TagString: enemy
@@ -735,6 +736,20 @@ MonoBehaviour:
   isSharpshooter: 1
   destroy: 0
   hp: 1
+--- !u!136 &1061346092090857165
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5483572225188804237}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 1.2
+  m_Height: 3
+  m_Direction: 1
+  m_Center: {x: 0, y: 1.5, z: 0}
 --- !u!1 &5483572225188804329
 GameObject:
   m_ObjectHideFlags: 0
