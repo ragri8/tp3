@@ -123,7 +123,7 @@ public class CustomPlayer : MonoBehaviour
     public void previous()
     {
         apparences[currentapparence].SetActive(false);
-        currentapparence=(currentapparence-1>0)?currentapparence-1:11;
+        currentapparence=(currentapparence-1>=0)?currentapparence-1:11;
         colorhaschanged = false;
         updateTexture(currentapparence,false);
         apparences[currentapparence].SetActive(true);

@@ -40,6 +40,7 @@ public class GameManager : MonoBehaviour {
 		mapGenerator.generateMap();
 		gameGrid = mapGenerator.getGrid();
 		player=GameObject.Find("player");
+		player.SendMessage("Debutjeu");
 		if (player == null) {
 			// #Tip Never assume public properties of Components are filled up properly, always check and inform the developer of it.
 			Debug.LogError(
