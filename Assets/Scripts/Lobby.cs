@@ -8,7 +8,6 @@ using UnityEngine.UI;
  */
 public class Lobby : MonoBehaviour
 {
-
     public GameObject player;
     void Update() {
         if (Input.GetKeyDown(KeyCode.Escape))

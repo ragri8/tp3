@@ -115,8 +115,10 @@ public class BotManager : MonoBehaviour {
             var speedZ = (float) (_speed * Math.Cos(Util.toRad(angle)));
             //body.velocity = velocity;
         }
+        
+        anim.SetFloat("angularspeed",ROTATION_SPEED);
         if (aiBehaviour.getRotationState() == MovementRotationState.LEFT) {
-            anim.SetFloat("angularspeed",ROTATION_SPEED);
+            
             //LocalPlayerInstance.transform.Rotate(0,ROTATION_SPEED * timelapse,0);
         } else if (aiBehaviour.getRotationState() == MovementRotationState.RIGHT) {
             //LocalPlayerInstance.transform.Rotate(0,-ROTATION_SPEED * timelapse,0);

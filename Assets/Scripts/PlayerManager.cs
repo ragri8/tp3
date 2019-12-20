@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 
 using System.Collections.Generic;
+using Random = System.Random;
 
 public class PlayerManager : MonoBehaviour {
     
@@ -24,15 +25,21 @@ public class PlayerManager : MonoBehaviour {
     private float invincibilityFrames = 0.0f;
     private static float maxInvincibilityFrames = 2.0f;
     private Animator anim;
+    private bool shoot;
     private Dictionary<string, KeyCode> controlKeys = new Dictionary<string, KeyCode>();
+    private float rotationspeed=130;
     private float rotationSensibility;
     private static string ENEMY_TAG = "enemy";
+    [SerializeField] private GameObject gun;
+    [SerializeField] private GameObject dirt;
 
     void Awake()
     {
         anim = GetComponent<Animator>();
         LocalPlayerInstance = gameObject;
         anim.SetBool("Static_b",false);
+        
+        
         if (tag.Equals("Player")) {
 
             GameObject[] enemies = GameObject.FindGameObjectsWithTag("enemy");
@@ -67,6 +74,19 @@ public class PlayerManager : MonoBehaviour {
                 invincibilityFrames -= Time.deltaTime;
             }
         }
+        anim.SetBool("Jump_b",shoot);
+        anim.SetFloat("Speed_f",playerZSpeed);
+        transform.Rotate(0,rotationspeed*Time.deltaTime*playerXSpeed,0);
+        dirt.SetActive(anim.GetCurrentAnimatorStateInfo(0).IsName("Run"));
+        
+    }
+
+    private void LateUpdate()
+    {
+        if (!lobby)
+        {
+            transform.position = new Vector3(transform.position.x, 0, transform.position.z);
+        }
     }
 
     void OnCollisionEnter(Collision collide) {
@@ -91,15 +111,18 @@ public class PlayerManager : MonoBehaviour {
         health--;
         invincibilityFrames = maxInvincibilityFrames;
         if (health <= 0) {
-            //game.SendMessage("gameOver");//on dit au jeu qu'on a perdu quand on meurt
+            game.SendMessage("gameOver");//on dit au jeu qu'on a perdu quand on meurt
             //game.SendMessage("gameOver", LocalPlayerInstance, SendMessageOptions.RequireReceiver);
-            Destroy(this.gameObject);
+            anim.SetFloat("DeathType_int",1);
+            anim.SetBool("Death_b",true);
+            //Destroy(this.gameObject);
         }
     }
 
     void ProcessInputs() {
         playerXSpeed = 0;
         playerZSpeed = 0;
+        shoot = false;
         if (Input.GetKey(controlKeys["Up1"])) {
             playerZSpeed += 1;
         } else if (Input.GetKey(controlKeys["Down1"])) {
@@ -113,9 +136,12 @@ public class PlayerManager : MonoBehaviour {
         if (Input.GetKey(controlKeys["Left1"])) {
             playerXSpeed -= 1;
         }
-
+        if (Input.GetKey(controlKeys["Fire1"]))
+        {
+            shoot = true;
+        }
         var direction = new Vector3(playerXSpeed, 0, playerZSpeed);
-        anim.SetFloat("Speed_f",playerZSpeed);
+        
         if (direction != Vector3.zero) {
             //playerBody.velocity = MAX_SPEED * direction; // TODO direction should be normalized
         }
