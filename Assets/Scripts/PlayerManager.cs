@@ -25,21 +25,18 @@ public class PlayerManager : MonoBehaviour {
     private float invincibilityFrames = 0.0f;
     private static float maxInvincibilityFrames = 2.0f;
     private Animator anim;
+    private bool shoot;
     private Dictionary<string, KeyCode> controlKeys = new Dictionary<string, KeyCode>();
+    private float rotationspeed=130;
     private float rotationSensibility;
+    [SerializeField] private GameObject gun;
+    [SerializeField] private GameObject dirt;
 
     void Awake()
     {
         anim = GetComponent<Animator>();
         LocalPlayerInstance = gameObject;
         anim.SetBool("Static_b",false);
-        if (tag.Equals("Player")) {
-
-            GameObject[] enemies = GameObject.FindGameObjectsWithTag("enemy");
-            foreach (GameObject enemy in enemies) {
-                    enemy.SendMessage("syncPlayer"); // s'assure que les bots sont synchronisé avec le joueur
-            }
-        }
         playerBody = LocalPlayerInstance.GetComponent<Rigidbody>();
     }
     
@@ -52,18 +49,27 @@ public class PlayerManager : MonoBehaviour {
         controlKeys.Add("Slow1", (KeyCode)System.Enum.Parse(typeof(KeyCode), PlayerPrefs.GetString("Slow1","LeftShift")));
         controlKeys.Add("Fire1", (KeyCode)System.Enum.Parse(typeof(KeyCode), PlayerPrefs.GetString("Fire1","Space")));
         rotationSensibility = PlayerPrefs.GetInt("Sensibility1", 100);
-        
-        //if (_cameraWork != null) {
-        //     _cameraWork.OnStartFollowing();
-        //}
+       
     }
 
     void Update() {
-        if (!lobby&&!game.paused) {
+        if (!lobby && !game.paused) {
             ProcessInputs ();
             if (invincibilityFrames > 0) {
                 invincibilityFrames -= Time.deltaTime;
             }
+        }
+        anim.SetBool("Jump_b", shoot);
+        anim.SetFloat("Speed_f", playerZSpeed);
+        transform.Rotate(0, rotationspeed*Time.deltaTime*playerXSpeed, 0);
+        dirt.SetActive(anim.GetCurrentAnimatorStateInfo(0).IsName("Run"));
+        
+    }
+
+    private void LateUpdate() {
+        if (!lobby) {
+            var transformPos = transform.position;
+            transform.position = new Vector3(transformPos.x, 0, transformPos.z);
         }
     }
 
@@ -77,17 +83,16 @@ public class PlayerManager : MonoBehaviour {
         }
     }
 
-    public void  Debutjeu()
-    {
+    public void  Debutjeu() {
         lobby = false;
         game = GameObject.Find("Game Manager").GetComponent<GameManager>();
         healthbar = Instantiate(this.healthbar);
         healthbar.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
         playerBody.useGravity = true;
         
-        CameraWork _cameraWork = this.gameObject.GetComponent<CameraWork>();
-        if (_cameraWork != null) {
-            _cameraWork.OnStartFollowing();
+        var cameraWork = gameObject.GetComponent<CameraWork>();
+        if (cameraWork != null) {
+            cameraWork.OnStartFollowing();
         }
     }
     
@@ -95,14 +100,20 @@ public class PlayerManager : MonoBehaviour {
         health--;
         invincibilityFrames = maxInvincibilityFrames;
         if (health <= 0) {
-            Destroy(this.gameObject);
+            //game.SendMessage("gameOver");//on dit au jeu qu'on a perdu quand on meurt
+            //game.SendMessage("gameOver", LocalPlayerInstance, SendMessageOptions.RequireReceiver);
+            anim.SetFloat("DeathType_int",1);
+            anim.SetBool("Death_b",true);
             game.gameOver(LocalPlayerInstance);
+            //Destroy(this.gameObject);
         }
     }
 
-    void ProcessInputs() {
+    private void ProcessInputs() {
         playerXSpeed = 0;
         playerZSpeed = 0;
+        shoot = false;
+        
         if (Input.GetKey(controlKeys["Up1"])) {
             playerZSpeed += 1;
         } else if (Input.GetKey(controlKeys["Down1"])) {
@@ -116,11 +127,9 @@ public class PlayerManager : MonoBehaviour {
         if (Input.GetKey(controlKeys["Left1"])) {
             playerXSpeed -= 1;
         }
-
-        var direction = new Vector3(playerXSpeed, 0, playerZSpeed);
-        anim.SetFloat("Speed_f",playerZSpeed);
-        if (direction != Vector3.zero) {
-            //playerBody.velocity = MAX_SPEED * direction; // TODO direction should be normalized
+        if (Input.GetKey(controlKeys["Fire1"]))
+        {
+            shoot = true;
         }
         /*
         if (Input.GetKeyDown(controlKeys["Fire1"])) {

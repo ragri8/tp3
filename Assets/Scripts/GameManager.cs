@@ -29,7 +29,7 @@ public class GameManager : MonoBehaviour {
 	private int maxEnemies = 3;
 	private int enemyKilled = 0;
 	private float respawnCooldown = 0;
-	private float minimumRespawnTime = 3;
+	private float minimumRespawnTime = 1;
 	public int minEnemyRangeSpawn = 5;
 	public int maxEnemyRangeSpawn = 8;
 	public float timeBasedEnemyIncrease = 5;
@@ -150,6 +150,7 @@ public class GameManager : MonoBehaviour {
 		foreach (BotManager enemy in enemies) {
 			enemy.Destroy();
 		}
+		Destroy(player);
 		Destroy(map);
 	}
 }

@@ -6,23 +6,18 @@ using UnityEngine.UI;
 /**
  * script pour la gestion de la scene lobby ou l'on attend les joueurs avant de commencer la parte
  */
-public class Lobby : MonoBehaviour
-{
-
+public class Lobby : MonoBehaviour {
     public GameObject player;
     void Update() {
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
+        if (Input.GetKeyDown(KeyCode.Escape)) {
             Application.Quit();
-            
         }
     }
     public void OnLeftRoom() { 
         SceneManager.LoadScene("Launcher"); //on retourne dans la scene d'acceuil
     }
     
-    public void clickLaunch()
-    {
+    public void clickLaunch() {
         DontDestroyOnLoad(player);
         SceneManager.LoadScene("Game");
     }

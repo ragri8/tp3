@@ -40,56 +40,26 @@ public class BotManager : MonoBehaviour {
         }
     }
 
-    public void checkcollision() {
-        GameObject[] lasers= GameObject.FindGameObjectsWithTag("Laser");
-        foreach (GameObject obj in lasers) {
-            Laser laser = obj.GetComponent<Laser>();
-            Vector3 poslocal = transform.InverseTransformPoint(obj.transform.position);
-            if (!destroy&&poslocal.x < largeur && poslocal.x > -largeur && poslocal.z < longeur && poslocal.z > -longeur) {
-                destroy = true;
-                laser.hit();
-                hit();
-            }
-        } 
-        GameObject[] players= GameObject.FindGameObjectsWithTag("Player");
-        foreach (GameObject obj in players) {
-            Vector3 poslocal = transform.InverseTransformPoint(obj.transform.position + obj.transform.forward*longeurplayer + obj.transform.right*largeurplayer); 
-            if (!!destroy&&poslocal.x < largeur && poslocal.x > -largeur && poslocal.z < longeur && poslocal.z > -longeur) {
-                destroy = true;
-                hit();
-                obj.SendMessage("hit");
-            }
-            poslocal = transform.InverseTransformPoint(obj.transform.position+obj.transform.forward*longeurplayer-obj.transform.right*largeurplayer); 
-            if (!destroy&&poslocal.x < largeur && poslocal.x > -largeur && poslocal.z < longeur && poslocal.z > -longeur) {
-                destroy = true;
-                hit();
-                obj.SendMessage("hit");
-            }
-            poslocal = transform.InverseTransformPoint(obj.transform.position-obj.transform.forward*longeurplayer+obj.transform.right*largeurplayer); 
-            if (!destroy&&poslocal.x < largeur && poslocal.x > -largeur && poslocal.z < longeur && poslocal.z > -longeur) {
-                destroy = true;
-                hit();
-                obj.SendMessage("hit");
-            }
-            poslocal = transform.InverseTransformPoint(obj.transform.position-obj.transform.forward*longeurplayer-obj.transform.right*largeurplayer); 
-            if (!destroy&&poslocal.x < largeur && poslocal.x > -largeur && poslocal.z < longeur && poslocal.z > -longeur) {
-                destroy = true;
-                hit();
-                obj.SendMessage("hit");
-            }
-        } 
-    }
-    public void hit() {
-        hp--;
-        if (hp <= 0) {
-            anim.SetBool("damage",true);
+    private void OnCollisionEnter(Collision collide) {
+        if (collide.gameObject.CompareTag(Global.BULLET_TAG)) {
+            hit();
         }
     }
 
-    IEnumerator Death() 
-    {
+    public void hit() {
+        hp--;
+        if (hp > 0) {
+            anim.SetBool("damage", true);
+        } else {
+            Death();
+        }
+    }
+
+    IEnumerator Death() {
+        // TODO call death animation
         yield return new WaitForSeconds(5);
         Destroy(gameObject);
+        game.enemyDestroyed();
     }
 
     public IEnumerator Destroy() {
@@ -122,42 +92,13 @@ public class BotManager : MonoBehaviour {
             //var velocity = new Vector3(speedX, 0, speedZ);
             //body.velocity = velocity;
         }
+        
+        anim.SetFloat("angularspeed",ROTATION_SPEED);
         if (aiBehaviour.getRotationState() == MovementRotationState.LEFT) {
-            anim.SetFloat("angularspeed",ROTATION_SPEED);
+            
             //LocalPlayerInstance.transform.Rotate(0,ROTATION_SPEED * timelapse,0);
         } else if (aiBehaviour.getRotationState() == MovementRotationState.RIGHT) {
             //LocalPlayerInstance.transform.Rotate(0,-ROTATION_SPEED * timelapse,0);
         }
-
-        /*
-        var timelapse = Time.deltaTime;
-        if (_aiBehaviour.getTranslationState() == MovementTranslationState.FORWARD) {
-            if (_speed < MAX_SPEED) {
-                _speed += TRANSLATION_ACCELERATION * timelapse;
-            }
-            
-        } else if (_aiBehaviour.getTranslationState() == MovementTranslationState.HALF_FORWARD) {
-            if (_speed < MAX_SPEED / 2) {
-                _speed += TRANSLATION_ACCELERATION * timelapse;
-            } else {
-                _speed -= TRANSLATION_ACCELERATION * timelapse;
-            }
-        } else if (_aiBehaviour.getTranslationState() == MovementTranslationState.SLOW) {
-            if (_speed > 0) {
-                _speed -= TRANSLATION_ACCELERATION * timelapse;
-            } else {
-                _speed = 0;
-            }
-        }
-        LocalPlayerInstance.transform.Translate(0, 0, _speed * Time.deltaTime);
-        if (_aiBehaviour.getRotationState() == MovementRotationState.LEFT) {
-            LocalPlayerInstance.transform.Rotate(0,ROTATION_SPEED * Time.deltaTime,0);
-        } else if (_aiBehaviour.getRotationState() == MovementRotationState.RIGHT) {
-            LocalPlayerInstance.transform.Rotate(0,-ROTATION_SPEED * Time.deltaTime,0);
-        }
-        if (_aiBehaviour.isFiring) {
-            _aiBehaviour.isFiring = false;
-            Instantiate(new Laser(), transform.position + 20 * transform.forward, transform.rotation);
-        }*/
     }
 }
