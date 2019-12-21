@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using Map;
 using UnityEngine;
@@ -50,6 +51,12 @@ public class GameManager : MonoBehaviour {
 	public int seed = 42;
 	public ProceduralMapGenerator mapGenerator;
 
+	public AudioSource gameMusic;
+	public AudioSource pauseMusic;
+
+	private int volume;
+	private bool musicInBlending = false;
+
 	void Start() {
 		for (int i = 0; i < 10; i++)
 		{
@@ -73,6 +80,7 @@ public class GameManager : MonoBehaviour {
 			player.transform.position = gameGrid.randomPosition(player.transform.GetChild(0).lossyScale.y / 2.0f);
 		}
 		loadPlayerAvatar();
+		volume = PlayerPrefs.GetInt("musicVolume", 100);
 	}
 	
 	void Update() {
@@ -98,10 +106,12 @@ public class GameManager : MonoBehaviour {
 
 	public void Pause() {
 		paused = true;
+		StartCoroutine(crossfadeMusic(gameMusic, pauseMusic, 2f, volume));
 	}
 
 	public void Continue() {
 		paused = false;
+		StartCoroutine(crossfadeMusic(pauseMusic, gameMusic, 2f, volume));
 	}
 
 	public void gameOver(GameObject player) {
@@ -283,5 +293,25 @@ public class GameManager : MonoBehaviour {
 		casingObject.SetActive(true);
 
 		casingObject.GetComponent<Casing>().activate();
+	}
+
+	private IEnumerator crossfadeMusic(AudioSource firstMusic, AudioSource secondMusic, float duration, float volume)
+	{
+		float startVolumeFirstMusic = firstMusic.volume;
+		if (firstMusic == null || secondMusic == null)
+		{
+			yield return null;
+		}
+		else
+		{
+			musicInBlending = true;
+
+			while (firstMusic.volume > 0f && secondMusic.volume < volume)
+			{
+				firstMusic.volume -= startVolumeFirstMusic * Time.deltaTime / duration;
+				secondMusic.volume += volume * Time.deltaTime / duration;
+				yield return null;
+			}
+		}
 	}
 }
