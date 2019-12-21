@@ -1,4 +1,6 @@
-﻿using Map;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Map;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -19,7 +21,16 @@ public class GameManager : MonoBehaviour {
 	private GameGrid gameGrid;
 	private GameObject player;
 	private GameObject map;
-
+	[SerializeField] private GameObject blood;
+	[SerializeField] private GameObject enemy_blood;
+	[SerializeField] private GameObject spakle;
+	[SerializeField] private GameObject bullet;
+	[SerializeField] private GameObject casing;
+	private List<GameObject> bloodlist=new List<GameObject>();
+	private List<GameObject> enemy_bloodlist=new List<GameObject>();
+	private List<GameObject> spaklelist=new List<GameObject>();
+	private List<GameObject> bulletlist=new List<GameObject>();
+	private List<GameObject> casinglist=new List<GameObject>();
 	public bool isGameOver = false;
 	public GameObject pausepanel;
 	public GameObject gameOverPanel;
@@ -39,6 +50,14 @@ public class GameManager : MonoBehaviour {
 	public ProceduralMapGenerator mapGenerator;
 
 	void Start() {
+		for (int i = 0; i < 10; i++)
+		{
+			bloodlist.Append(Instantiate(blood, Vector3.zero, Quaternion.identity));//pour le pooling
+			enemy_bloodlist.Append(Instantiate(enemy_blood, Vector3.zero, Quaternion.identity));
+			bulletlist.Append(Instantiate(bullet, Vector3.zero, Quaternion.identity));
+			casinglist.Append(Instantiate(casing, Vector3.zero, Quaternion.identity));
+			spaklelist.Append(Instantiate(spakle, Vector3.zero, Quaternion.identity));
+		}
 		mapGenerator.setSeed(seed);
 		map = mapGenerator.generateMap();
 		gameGrid = mapGenerator.getGrid();
@@ -145,6 +164,79 @@ public class GameManager : MonoBehaviour {
 		}
 	}
 
+	private GameObject get_sparkle_Available()
+	{
+		foreach (var s in spaklelist)
+		{
+			if (!s.activeSelf)//si on trouve un GameObject disponible
+			{
+				return s;
+			}
+		}
+		
+		GameObject newsparkle = Instantiate(spakle, Vector3.zero, Quaternion.identity);//si on en trouve pas on en rajoute un dans la liste
+		spaklelist.Append(newsparkle);
+		return newsparkle;
+	}
+	private GameObject get_blood_Available()
+	{
+		foreach (var b in bloodlist)
+		{
+			if (!b.activeSelf)//si on trouve un GameObject disponible
+			{
+				return b;
+			}
+		}
+		
+		GameObject newblood = Instantiate(blood, Vector3.zero, Quaternion.identity);//si on en trouve pas on en rajoute un dans la liste
+		bloodlist.Append(newblood);
+		return newblood;
+	}	
+	
+	private GameObject get_enemy_blood_Available()
+	{
+		foreach (var eb in enemy_bloodlist)
+		{
+			if (!eb.activeSelf)//si on trouve un GameObject disponible
+			{
+				return eb;
+			}
+		}
+		
+		GameObject new_enemy_blood = Instantiate(enemy_blood, Vector3.zero, Quaternion.identity);//si on en trouve pas on en rajoute un dans la liste
+		enemy_bloodlist.Append(new_enemy_blood);
+		return new_enemy_blood;
+	}	
+	
+	private GameObject get_bullet_Available()
+	{
+		foreach (var b in bulletlist)
+		{
+			if (!b.activeSelf)//si on trouve un GameObject disponible
+			{
+				return b;
+			}
+		}
+		
+		GameObject newbullet = Instantiate(bullet, Vector3.zero, Quaternion.identity);//si on en trouve pas on en rajoute un dans la liste
+		bulletlist.Append(newbullet);
+		return newbullet;
+	}	
+	
+	private GameObject get_casing_Available()
+	{
+		foreach (var c in casinglist)
+		{
+			if (!c.activeSelf)//si on trouve un GameObject disponible
+			{
+				return c;
+			}
+		}
+		
+		GameObject newcasing = Instantiate(casing, Vector3.zero, Quaternion.identity);//si on en trouve pas on en rajoute un dans la liste
+		casinglist.Append(newcasing);
+		return newcasing;
+	}
 	private void deleteAll() {
 		var enemies = FindObjectsOfType<BotManager>();
 		foreach (BotManager enemy in enemies) {
