@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 5102094613396085222}
   - component: {fileID: 5102094613396085223}
   - component: {fileID: 5102094613396085224}
+  - component: {fileID: 8063369475573612873}
   m_Layer: 0
   m_Name: enemy_blood_effect
   m_TagString: Untagged
@@ -4753,3 +4754,15 @@ ParticleSystemRenderer:
   m_Mesh2: {fileID: 0}
   m_Mesh3: {fileID: 0}
   m_MaskInteraction: 0
+--- !u!114 &8063369475573612873
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5102094613396085225}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f34a4f35ca614d54197daf24ee3d369f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
