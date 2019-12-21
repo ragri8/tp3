@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using AI;
 using UnityEngine;
@@ -11,19 +10,18 @@ public class BotManager : MonoBehaviour {
     private AIBehaviour aiBehaviour;
     public GameManager game;
     private Animator anim;
-    private Transform transform;
     private float _speed;
     public bool dead = false;
-    public int hp;
+    public int health;
     private bool isAttacking = false;
+    private const float BLOOD_DISTANCE_FROM_BODY = 1.0f;
     
     void Awake() {
         anim = GetComponent<Animator>();
         game = GameObject.Find("Game Manager").GetComponent<GameManager>();
         LocalPlayerInstance = gameObject;
-        transform = LocalPlayerInstance.GetComponent<Transform>();
         aiBehaviour = new AIBehaviour(gameObject);
-        hp = 2;
+        health = 2;
     }
     
     void Update() {
@@ -42,8 +40,10 @@ public class BotManager : MonoBehaviour {
     }
 
     public void hit() {
-        hp--;
-        if (hp > 0) {
+        health--;
+        var position = transform.position + Vector3.up * BLOOD_DISTANCE_FROM_BODY;
+        game.generateBlood(position);
+        if (health > 0) {
             anim.SetBool("damage", true);
         } else {
             StartCoroutine(Death());

@@ -1,13 +1,9 @@
-using System;
 using UnityEngine;
 
 using System.Collections.Generic;
 
 public class PlayerManager : MonoBehaviour {
     
-    [Tooltip("The prefab to use for representing a bullet")] [SerializeField]
-    private GameObject bulletPrefab;
-    [SerializeField] private GameObject casingPrefab;
     bool IsFiring;
     [Tooltip("The local player instance. Use this to know if the local player is represented in the Scene")]
     public static GameObject LocalPlayerInstance;
@@ -15,16 +11,13 @@ public class PlayerManager : MonoBehaviour {
     [SerializeField]
     private GameManager game;
     public GameObject healthbar;
-    public float playerSpeed;
     public float playerXSpeed;
     public float playerZSpeed;
-    private bool lobby=true;
+    private bool lobby = true;
     [SerializeField]
     private Rigidbody playerBody;
-    private int longeur = 15;
-    private int largeur = 10;
-    public float health=10;//vie maximale
-    public float MAX_SPEED = 10.0f;
+    private Transform transform;
+    public float health = 10;
     private float invincibilityFrames = 0.0f;
     private static float maxInvincibilityFrames = 2.0f;
     private Animator anim;
@@ -35,6 +28,7 @@ public class PlayerManager : MonoBehaviour {
     private float rotationSensibility;
     [SerializeField] private GameObject gun;
     [SerializeField] private GameObject dirt;
+    private const float HEAD_DISTANCE_FROM_BODY = 1.0f;
 
     void Awake() {
         anim = GetComponent<Animator>();
@@ -44,12 +38,10 @@ public class PlayerManager : MonoBehaviour {
     }
     
     void Start() {
-        playerSpeed = 0;
         controlKeys.Add("Up1", (KeyCode)System.Enum.Parse(typeof(KeyCode), PlayerPrefs.GetString("Up1","W")));
         controlKeys.Add("Down1", (KeyCode)System.Enum.Parse(typeof(KeyCode), PlayerPrefs.GetString("Down1","S")));
         controlKeys.Add("Left1", (KeyCode)System.Enum.Parse(typeof(KeyCode), PlayerPrefs.GetString("Left1","A")));
         controlKeys.Add("Right1", (KeyCode)System.Enum.Parse(typeof(KeyCode), PlayerPrefs.GetString("Right1","D")));
-        controlKeys.Add("Slow1", (KeyCode)System.Enum.Parse(typeof(KeyCode), PlayerPrefs.GetString("Slow1","LeftShift")));
         controlKeys.Add("Fire1", (KeyCode)System.Enum.Parse(typeof(KeyCode), PlayerPrefs.GetString("Fire1","Space")));
         rotationSensibility = PlayerPrefs.GetInt("Sensibility1", 100);
        
@@ -71,13 +63,13 @@ public class PlayerManager : MonoBehaviour {
         }
     }
 
-    void OnCollisionEnter(Collision collide) {
+    void OnCollisionStay(Collision collision) {
         if (invincibilityFrames > 0) {
             return;
         }
 
-        if (collide.gameObject.CompareTag(Global.ENEMY_TAG)) {
-            if (!collide.gameObject.GetComponent<BotManager>().dead) {
+        if (collision.gameObject.CompareTag(Global.ENEMY_TAG)) {
+            if (!collision.gameObject.GetComponent<BotManager>().dead) {
                 hit();
             }
         }
@@ -99,23 +91,23 @@ public class PlayerManager : MonoBehaviour {
     private void hit() {
         health--;
         invincibilityFrames = maxInvincibilityFrames;
+        var position = transform.position + Vector3.up * HEAD_DISTANCE_FROM_BODY;
+        game.generateBlood(position);
         if (health <= 0) {
-            //game.SendMessage("gameOver");//on dit au jeu qu'on a perdu quand on meurt
-            //game.SendMessage("gameOver", LocalPlayerInstance, SendMessageOptions.RequireReceiver);
             anim.SetFloat("DeathType_int",1);
             anim.SetBool("Death_b",true);
             game.gameOver(LocalPlayerInstance);
-            //Destroy(this.gameObject);
         }
     }
 
     public void shootBullet() {
-        var playerTransform = LocalPlayerInstance.transform;
         var gunPosition = gun.transform.position;
         var gunPos = gunPosition + gun.transform.forward * 0.35f;
-        Instantiate(bulletPrefab, gunPos, playerTransform.rotation);
+        var rotation = transform.rotation;
+        game.generateBullet(gunPos, rotation);
+        
         var casingPos = gunPosition + gun.transform.right * 0.5f;
-        Instantiate(casingPrefab, casingPos, playerTransform.rotation);
+        game.generateCasing(casingPos, rotation);
     }
 
     private void ProcessInputs() {
@@ -127,8 +119,6 @@ public class PlayerManager : MonoBehaviour {
             playerZSpeed += 1;
         } else if (Input.GetKey(controlKeys["Down1"])) {
             playerZSpeed -= 1;
-        } else if (Input.GetKey(controlKeys["Slow1"])) {
-            playerSpeed = 0;
         }
         if (Input.GetKey(controlKeys["Right1"])) {
             playerXSpeed += 1;
@@ -153,5 +143,4 @@ public class PlayerManager : MonoBehaviour {
             hasShot = false;
         }
     }
-    
 }

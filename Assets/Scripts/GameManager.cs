@@ -153,4 +153,35 @@ public class GameManager : MonoBehaviour {
 		Destroy(player);
 		Destroy(map);
 	}
+
+	public void generateBlood(Vector3 position) {
+		// todo get ground
+		// todo get blood
+		
+		// todo put in place
+		
+		// todo set active
+		
+		//todo awake
+	}
+
+	public void generateBullet(Vector3 position, Quaternion rotation) {
+		// todo get bullet
+		
+		// todo put in place
+		
+		// todo set active
+		
+		//todo awake
+	}
+
+	public void generateCasing(Vector3 position, Quaternion rotation) {
+		// todo get casing
+		
+		// todo put in place
+		
+		// todo set active
+		
+		//todo awake
+	}
 }

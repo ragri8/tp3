@@ -1,10 +1,9 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Casing : MonoBehaviour
-{
+public class Casing : MonoBehaviour {
     [SerializeField] private Light light;
     [SerializeField] private AudioSource sound;
     [SerializeField] private AudioSource fire;
@@ -36,8 +35,7 @@ public class Casing : MonoBehaviour
         }
     }
 
-    private void activate()
-    {
+    public void activate() {
         gameObject.SetActive(true);
         gameObject.GetComponent<Rigidbody>().velocity=Vector3.zero;
         light.enabled = true;

@@ -181,8 +181,6 @@ namespace AI {
             }
         }
 
-
-
         private void searchTarget() {
             var closestUnit = _current;
             var closestDistance = float.MaxValue;
