@@ -1060,9 +1060,9 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 0}
+  m_audioClip: {fileID: 8300000, guid: 59ede36a4da27814683f1ceb07289039, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0
   m_Pitch: 1
   Loop: 1
   Mute: 0
@@ -2321,6 +2321,11 @@ PrefabInstance:
       propertyPath: pauseMusic
       value: 
       objectReference: {fileID: 868531935}
+    - target: {fileID: 8428901325247516458, guid: ccc1be409de6486418809985c83fee44,
+        type: 3}
+      propertyPath: ambiance
+      value: 
+      objectReference: {fileID: 1199066505}
     - target: {fileID: -3611687841476776468, guid: ccc1be409de6486418809985c83fee44,
         type: 3}
       propertyPath: ObservedComponents.Array.size
