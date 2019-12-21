@@ -51,12 +51,9 @@ public class GameManager : MonoBehaviour {
 	public int seed = 42;
 	public ProceduralMapGenerator mapGenerator;
 
-	public AudioSource gameMusic;
-	public AudioSource pauseMusic;
-
-	private int volume;
-	private bool musicInBlending = false;
-
+	private GameMusicManager music;
+	public AudioSource comboJingle;
+	
 	void Start() {
 		for (int i = 0; i < 10; i++)
 		{
@@ -80,7 +77,8 @@ public class GameManager : MonoBehaviour {
 			player.transform.position = gameGrid.randomPosition(player.transform.GetChild(0).lossyScale.y / 2.0f);
 		}
 		loadPlayerAvatar();
-		volume = PlayerPrefs.GetInt("musicVolume", 100);
+		music = GameObject.Find("Game Music").GetComponent<GameMusicManager>();
+		comboJingle.volume = (1/100f) * PlayerPrefs.GetInt("sfxVolume", 100);
 	}
 	
 	void Update() {
@@ -106,17 +104,16 @@ public class GameManager : MonoBehaviour {
 
 	public void Pause() {
 		paused = true;
-		StartCoroutine(crossfadeMusic(gameMusic, pauseMusic, 2f, volume));
 	}
 
 	public void Continue() {
 		paused = false;
-		StartCoroutine(crossfadeMusic(pauseMusic, gameMusic, 2f, volume));
 	}
 
 	public void gameOver(GameObject player) {
 		gameOverPanel.SetActive(true);//on affiche juste le panel de gameOver
 		isGameOver = true;
+		music.gameOver();
 		var enemies = FindObjectsOfType<BotManager>();
 		foreach (BotManager enemy in enemies) {
 			enemy.removePlayer(player);
@@ -172,6 +169,16 @@ public class GameManager : MonoBehaviour {
 		enemyKilled++;
 		if (respawnCooldown <= 0) {
 			respawnCooldown = minimumRespawnTime;
+		}
+
+		if (enemyKilled % 5 == 0)
+		{
+			
+			if (comboJingle.pitch < 2)
+			{
+				comboJingle.pitch += 0.1f;
+			}
+			comboJingle.Play();
 		}
 	}
 
@@ -293,25 +300,5 @@ public class GameManager : MonoBehaviour {
 		casingObject.SetActive(true);
 
 		casingObject.GetComponent<Casing>().activate();
-	}
-
-	private IEnumerator crossfadeMusic(AudioSource firstMusic, AudioSource secondMusic, float duration, float volume)
-	{
-		float startVolumeFirstMusic = firstMusic.volume;
-		if (firstMusic == null || secondMusic == null)
-		{
-			yield return null;
-		}
-		else
-		{
-			musicInBlending = true;
-
-			while (firstMusic.volume > 0f && secondMusic.volume < volume)
-			{
-				firstMusic.volume -= startVolumeFirstMusic * Time.deltaTime / duration;
-				secondMusic.volume += volume * Time.deltaTime / duration;
-				yield return null;
-			}
-		}
 	}
 }

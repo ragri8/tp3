@@ -1337,9 +1337,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06b21634b710ccc4d840a5c4eefd7df0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  height: 10
+  height: 22
   CAMERA_DISTANCE: 12
-  CAMERA_ANGLE: 25
+  CAMERA_ANGLE: 50
 --- !u!81 &3114803928908219040
 AudioListener:
   m_ObjectHideFlags: 0

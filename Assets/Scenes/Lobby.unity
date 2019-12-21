@@ -689,7 +689,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 0}
+  m_audioClip: {fileID: 8300000, guid: 59ede36a4da27814683f1ceb07289039, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
@@ -4265,7 +4265,7 @@ PrefabInstance:
     - target: {fileID: -7451690919956153206, guid: fe5b9c3907d223746b33da2432305c14,
         type: 3}
       propertyPath: CAMERA_DISTANCE
-      value: 15
+      value: 12
       objectReference: {fileID: 0}
     - target: {fileID: -7451690919956153206, guid: fe5b9c3907d223746b33da2432305c14,
         type: 3}
