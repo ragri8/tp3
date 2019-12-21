@@ -16,7 +16,6 @@ public class PlayerManager : MonoBehaviour {
     private bool lobby = true;
     [SerializeField]
     private Rigidbody playerBody;
-    private Transform transform;
     public float health = 10;
     private float invincibilityFrames = 0.0f;
     private static float maxInvincibilityFrames = 2.0f;
@@ -131,7 +130,7 @@ public class PlayerManager : MonoBehaviour {
         }
         anim.SetBool("Jump_b", shoot);
         anim.SetFloat("Speed_f", playerZSpeed);
-        transform.Rotate(0, rotationspeed*Time.deltaTime*playerXSpeed, 0);
+        transform.Rotate(0, rotationspeed * Time.deltaTime * playerXSpeed, 0);
         dirt.SetActive(anim.GetCurrentAnimatorStateInfo(0).IsName("Run"));
         
         if (anim.GetCurrentAnimatorStateInfo(3).IsName("shoot")) {

@@ -17,6 +17,10 @@ public class BulletManager : MonoBehaviour {
         body.velocity = LocalInstance.transform.forward * SPEED;
     }
 
+    public void resetVelocity() {
+        body.velocity = LocalInstance.transform.forward * SPEED;
+    }
+
     void OnCollisionEnter(Collision collision) {
         if (collision.gameObject.CompareTag(Global.ENEMY_TAG)) {
             if (!collision.gameObject.GetComponent<BotManager>().dead) {
@@ -29,14 +33,13 @@ public class BulletManager : MonoBehaviour {
     }
 
     IEnumerator destroy() {
-        var renderer = LocalInstance.GetComponent<Renderer>();
-        renderer.enabled = false;
         body.velocity = Vector3.zero;
+        var position = transform.position;
+        transform.position = new Vector3(position.x, -1, position.z);
         var collider = LocalInstance.GetComponent<Collider>();
         collider.enabled = false;
         
         yield return new WaitForSeconds(SOUND_LENGTH);
-        renderer.enabled = true;
         collider.enabled = true;
         disactivate();
     }

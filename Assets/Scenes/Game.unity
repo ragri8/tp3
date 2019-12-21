@@ -1756,6 +1756,36 @@ PrefabInstance:
       propertyPath: gameOverPanel
       value: 
       objectReference: {fileID: 1080811758}
+    - target: {fileID: 8428901325247516458, guid: ccc1be409de6486418809985c83fee44,
+        type: 3}
+      propertyPath: bullet
+      value: 
+      objectReference: {fileID: 5958751403243218298, guid: 2736f3e05863e431682f50a228522853,
+        type: 3}
+    - target: {fileID: 8428901325247516458, guid: ccc1be409de6486418809985c83fee44,
+        type: 3}
+      propertyPath: casing
+      value: 
+      objectReference: {fileID: 2058469454119903283, guid: 1f2ab1b40423fe94181c7f377236613c,
+        type: 3}
+    - target: {fileID: 8428901325247516458, guid: ccc1be409de6486418809985c83fee44,
+        type: 3}
+      propertyPath: blood
+      value: 
+      objectReference: {fileID: 2506558315903888126, guid: c08eae7ede2b13a41884baa8b4a34fc0,
+        type: 3}
+    - target: {fileID: 8428901325247516458, guid: ccc1be409de6486418809985c83fee44,
+        type: 3}
+      propertyPath: spakle
+      value: 
+      objectReference: {fileID: 3984264982689698308, guid: cf99d738d758b524c85c84f95103e86c,
+        type: 3}
+    - target: {fileID: 8428901325247516458, guid: ccc1be409de6486418809985c83fee44,
+        type: 3}
+      propertyPath: enemy_blood
+      value: 
+      objectReference: {fileID: 5102094613396085225, guid: 17a7d48c7e89eac4f9cf83ac48621b9d,
+        type: 3}
     - target: {fileID: -3611687841476776468, guid: ccc1be409de6486418809985c83fee44,
         type: 3}
       propertyPath: ObservedComponents.Array.size

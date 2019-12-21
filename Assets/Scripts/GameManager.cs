@@ -164,26 +164,20 @@ public class GameManager : MonoBehaviour {
 		}
 	}
 
-	private GameObject get_sparkle_Available()
-	{
-		foreach (var s in spaklelist)
-		{
-			if (!s.activeSelf)//si on trouve un GameObject disponible
-			{
+	private GameObject get_sparkle_Available() {
+		foreach (var s in spaklelist) {
+			if (!s.activeSelf) { //si on trouve un GameObject disponible
 				return s;
 			}
 		}
-		
 		GameObject newsparkle = Instantiate(spakle, Vector3.zero, Quaternion.identity);//si on en trouve pas on en rajoute un dans la liste
 		spaklelist.Append(newsparkle);
 		return newsparkle;
 	}
-	private GameObject get_blood_Available()
-	{
-		foreach (var b in bloodlist)
-		{
-			if (!b.activeSelf)//si on trouve un GameObject disponible
-			{
+	
+	private GameObject get_blood_Available() {
+		foreach (var b in bloodlist) {
+			if (!b.activeSelf) { //si on trouve un GameObject disponible
 				return b;
 			}
 		}
@@ -258,13 +252,15 @@ public class GameManager : MonoBehaviour {
 	}
 
 	public void generateBullet(Vector3 position, Quaternion rotation) {
-		// todo get bullet
-		
-		// todo put in place
-		
-		// todo set active
-		
-		//todo awake
+		var bullet = get_bullet_Available();
+
+		var bulletTransform = bullet.transform;
+		bulletTransform.position = position;
+		bulletTransform.rotation = rotation;
+
+		bullet.SetActive(true);
+
+		bullet.GetComponent<BulletManager>().resetVelocity();
 	}
 
 	public void generateCasing(Vector3 position, Quaternion rotation) {
