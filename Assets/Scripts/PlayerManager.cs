@@ -7,6 +7,7 @@ public class PlayerManager : MonoBehaviour {
     
     [Tooltip("The prefab to use for representing a bullet")] [SerializeField]
     private GameObject bulletPrefab;
+    [SerializeField] private GameObject casingPrefab;
     bool IsFiring;
     [Tooltip("The local player instance. Use this to know if the local player is represented in the Scene")]
     public static GameObject LocalPlayerInstance;
@@ -35,8 +36,7 @@ public class PlayerManager : MonoBehaviour {
     [SerializeField] private GameObject gun;
     [SerializeField] private GameObject dirt;
 
-    void Awake()
-    {
+    void Awake() {
         anim = GetComponent<Animator>();
         LocalPlayerInstance = gameObject;
         anim.SetBool("Static_b",false);
@@ -61,20 +61,6 @@ public class PlayerManager : MonoBehaviour {
             if (invincibilityFrames > 0) {
                 invincibilityFrames -= Time.deltaTime;
             }
-        }
-        anim.SetBool("Jump_b", shoot);
-        anim.SetFloat("Speed_f", playerZSpeed);
-        transform.Rotate(0, rotationspeed*Time.deltaTime*playerXSpeed, 0);
-        dirt.SetActive(anim.GetCurrentAnimatorStateInfo(0).IsName("Run"));
-        if (anim.GetCurrentAnimatorStateInfo(3).IsName("shoot")) {
-            //Debug.Log("Shooting?");
-            if (!hasShot) {
-                //Debug.Log("Shooting!!!");
-                hasShot = true;
-                shootBullet();
-            }
-        } else {
-            hasShot = false;
         }
     }
 
@@ -126,8 +112,10 @@ public class PlayerManager : MonoBehaviour {
     public void shootBullet() {
         var playerTransform = LocalPlayerInstance.transform;
         var gunPosition = gun.transform.position;
-        var position = gunPosition + gun.transform.forward * 0.35f;
-        Instantiate(bulletPrefab, position, playerTransform.rotation);
+        var gunPos = gunPosition + gun.transform.forward * 0.35f;
+        Instantiate(bulletPrefab, gunPos, playerTransform.rotation);
+        var casingPos = gunPosition + gun.transform.right * 0.5f;
+        Instantiate(casingPrefab, casingPos, playerTransform.rotation);
     }
 
     private void ProcessInputs() {
@@ -148,15 +136,22 @@ public class PlayerManager : MonoBehaviour {
         if (Input.GetKey(controlKeys["Left1"])) {
             playerXSpeed -= 1;
         }
-        if (Input.GetKey(controlKeys["Fire1"]))
-        {
+        if (Input.GetKey(controlKeys["Fire1"])) {
             shoot = true;
         }
-        /*
-        if (Input.GetKeyDown(controlKeys["Fire1"])) {
-            var laser = new Laser();
-            Instantiate(laser, transform.position + 20 * transform.forward, transform.rotation);
-        }*/
+        anim.SetBool("Jump_b", shoot);
+        anim.SetFloat("Speed_f", playerZSpeed);
+        transform.Rotate(0, rotationspeed*Time.deltaTime*playerXSpeed, 0);
+        dirt.SetActive(anim.GetCurrentAnimatorStateInfo(0).IsName("Run"));
+        
+        if (anim.GetCurrentAnimatorStateInfo(3).IsName("shoot")) {
+            if (!hasShot) {
+                hasShot = true;
+                shootBullet();
+            }
+        } else {
+            hasShot = false;
+        }
     }
     
 }

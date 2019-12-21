@@ -5,23 +5,17 @@ using UnityEngine;
 
 public class BotManager : MonoBehaviour {
     private static float MAX_SPEED = 7.0f;
-    private static float TRANSLATION_ACCELERATION = 30.0f;
-    private static float ROTATION_SPEED = 20.0f;
+    private static float ROTATION_SPEED = 50.0f;
     
     private GameObject LocalPlayerInstance;
     private AIBehaviour aiBehaviour;
     public GameManager game;
-    public bool isSharpshooter = true;
     private Animator anim;
     private Transform transform;
-    private bool IsFiring;
     private float _speed;
-    private int longeur=11;
-    private int largeur=7;
-    private int longeurplayer = 15;
-    private int largeurplayer = 10;
     public bool dead = false;
     public int hp;
+    private bool isAttacking = false;
     
     void Awake() {
         anim = GetComponent<Animator>();
@@ -33,16 +27,17 @@ public class BotManager : MonoBehaviour {
     }
     
     void Update() {
-        if (!game.paused) {
+        if (!game.paused && !dead) {
             aiBehaviour.update();
             ProcessInputs();
-            //checkcollision();
         }
     }
 
     private void OnCollisionEnter(Collision collide) {
         if (collide.gameObject.CompareTag(Global.BULLET_TAG)) {
             hit();
+        } else if (collide.gameObject.CompareTag(Global.PLAYER_TAG)) {
+            isAttacking = true;
         }
     }
 
@@ -58,15 +53,13 @@ public class BotManager : MonoBehaviour {
     IEnumerator Death() {
         anim.SetBool("death", true);
         dead = true;
-        gameObject.GetComponent<CapsuleCollider>().enabled = false;
+        LocalPlayerInstance.GetComponent<CapsuleCollider>().enabled = false;
         yield return new WaitForSeconds(5);
-        Destroy(gameObject);
-        game.enemyDestroyed();
+        Destroy();
     }
 
-    public IEnumerator Destroy() {
-        yield return new WaitForSeconds(5);
-        Destroy(gameObject);
+    public void Destroy() {
+        Destroy(LocalPlayerInstance);
         game.enemyDestroyed();
     }
 
@@ -75,32 +68,25 @@ public class BotManager : MonoBehaviour {
     }
     
     void ProcessInputs() {
-        var timelapse = Time.deltaTime;
+        if (isAttacking) {
+            anim.SetBool("attack", true);
+            isAttacking = false;
+            return;
+        }
         
         if (aiBehaviour.getTranslationState() == MovementTranslationState.FORWARD) {
             _speed = MAX_SPEED;
-        } else if (aiBehaviour.getTranslationState() == MovementTranslationState.HALF_FORWARD) {
-            _speed = MAX_SPEED / 2.0f;
         } else if (aiBehaviour.getTranslationState() == MovementTranslationState.SLOW) {
-            _speed = 0.0f;
+            _speed = MAX_SPEED;
         } else {
             _speed = 0.0f;
         }
-        anim.SetFloat("speed",_speed);
-        if (_speed > 0.0f) {
-            var angle = transform.eulerAngles.y;
-            var speedX = (float) (_speed * Math.Sin(Util.toRad(angle)));
-            var speedZ = (float) (_speed * Math.Cos(Util.toRad(angle)));
-            //var velocity = new Vector3(speedX, 0, speedZ);
-            //body.velocity = velocity;
-        }
-        
-        anim.SetFloat("angularspeed",ROTATION_SPEED);
+        anim.SetFloat("speed", _speed);
+
         if (aiBehaviour.getRotationState() == MovementRotationState.LEFT) {
-            
-            //LocalPlayerInstance.transform.Rotate(0,ROTATION_SPEED * timelapse,0);
+            transform.Rotate(0, ROTATION_SPEED * Time.deltaTime * 1, 0);
         } else if (aiBehaviour.getRotationState() == MovementRotationState.RIGHT) {
-            //LocalPlayerInstance.transform.Rotate(0,-ROTATION_SPEED * timelapse,0);
+            transform.Rotate(0, ROTATION_SPEED * Time.deltaTime * -1, 0);
         }
     }
 }

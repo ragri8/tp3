@@ -26,14 +26,14 @@ public class GameManager : MonoBehaviour {
 	public Text enemyKilledDisplayText;
 	public bool paused = false;
 	private int nbrEnemies = 0;
-	private int maxEnemies = 3;
+	private int maxEnemies = 5;
 	private int enemyKilled = 0;
 	private float respawnCooldown = 0;
 	private float minimumRespawnTime = 1;
-	public int minEnemyRangeSpawn = 5;
-	public int maxEnemyRangeSpawn = 8;
+	public int minEnemyRangeSpawn = 4;
+	public int maxEnemyRangeSpawn = 6;
 	public float timeBasedEnemyIncrease = 5;
-	private const float TIME_ENEMY_INCREASE_VALUE = 15;
+	private const float TIME_ENEMY_INCREASE_VALUE = 10;
 	
 	public int seed = 42;
 	public ProceduralMapGenerator mapGenerator;

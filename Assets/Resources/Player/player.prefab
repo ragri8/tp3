@@ -1288,6 +1288,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bulletPrefab: {fileID: 5958751403243218298, guid: 2736f3e05863e431682f50a228522853,
     type: 3}
+  casingPrefab: {fileID: 2058469454119903283, guid: 1f2ab1b40423fe94181c7f377236613c,
+    type: 3}
   game: {fileID: 0}
   healthbar: {fileID: 8531397799331485151, guid: d4b590bf89d55de4eadd4baae4f9e643,
     type: 3}
