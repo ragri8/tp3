@@ -15,6 +15,7 @@ public class BulletManager : MonoBehaviour {
         LocalInstance = gameObject;
         game = GameObject.Find("Game Manager").GetComponent<GameManager>();
         body.velocity = LocalInstance.transform.forward * SPEED;
+        audioSource.volume = (1/100f) * PlayerPrefs.GetInt("sfxVolume", 100);
     }
 
     public void resetVelocity() {

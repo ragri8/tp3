@@ -9,8 +9,16 @@ public class Casing : MonoBehaviour {
     [SerializeField] private AudioSource fire;
     private float tdebut=0;
     // Start is called before the first frame update
+
+    private void Awake()
+    {
+        sound.volume = (1/100f) * PlayerPrefs.GetInt("sfxVolume", 100);
+        fire.volume = (1/100f) * PlayerPrefs.GetInt("sfxVolume", 100);
+    }
+
     void Start()
     {
+        
     }
 
     // Update is called once per frame
