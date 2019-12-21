@@ -37,7 +37,7 @@ public class Casing : MonoBehaviour {
 
     public void activate() {
         gameObject.SetActive(true);
-        gameObject.GetComponent<Rigidbody>().velocity=Vector3.zero;
+        gameObject.GetComponent<Rigidbody>().velocity = Vector3.zero;
         light.enabled = true;
         tdebut = Time.time;
         fire.Play();

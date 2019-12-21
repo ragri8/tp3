@@ -18,7 +18,7 @@ public class particleSystem : MonoBehaviour
     }
     public void activate() {
         gameObject.SetActive(true);
-        gameObject.GetComponent<Rigidbody>().velocity=Vector3.zero;
+        gameObject.GetComponent<ParticleSystem>().Play();
         tdebut = Time.time;
     }
 }

@@ -28,6 +28,9 @@ public class BulletManager : MonoBehaviour {
             }
         } else if (!collision.gameObject.CompareTag(Global.PLAYER_TAG)) {
             audioSource.Play();
+            var position = transform.position + transform.forward * -1;
+            var rotation = transform.rotation;
+            game.generateSparkle(position, rotation);
             StartCoroutine(destroy());
         }
     }

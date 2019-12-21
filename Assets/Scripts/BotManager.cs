@@ -42,7 +42,7 @@ public class BotManager : MonoBehaviour {
     public void hit() {
         health--;
         var position = transform.position + Vector3.up * BLOOD_DISTANCE_FROM_BODY;
-        game.generateBlood(position);
+        game.generateEnemyBlood(position);
         if (health > 0) {
             anim.SetBool("damage", true);
         } else {

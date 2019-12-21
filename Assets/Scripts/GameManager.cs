@@ -45,6 +45,7 @@ public class GameManager : MonoBehaviour {
 	public int maxEnemyRangeSpawn = 6;
 	public float timeBasedEnemyIncrease = 5;
 	private const float TIME_ENEMY_INCREASE_VALUE = 10;
+	private const float ENEMY_Z_POSITION = 0.0f;
 	
 	public int seed = 42;
 	public ProceduralMapGenerator mapGenerator;
@@ -52,11 +53,11 @@ public class GameManager : MonoBehaviour {
 	void Start() {
 		for (int i = 0; i < 10; i++)
 		{
-			bloodlist.Append(Instantiate(blood, Vector3.zero, Quaternion.identity));//pour le pooling
-			enemy_bloodlist.Append(Instantiate(enemy_blood, Vector3.zero, Quaternion.identity));
-			bulletlist.Append(Instantiate(bullet, Vector3.zero, Quaternion.identity));
-			casinglist.Append(Instantiate(casing, Vector3.zero, Quaternion.identity));
-			spaklelist.Append(Instantiate(spakle, Vector3.zero, Quaternion.identity));
+			bloodlist.Add(Instantiate(blood, Vector3.zero, blood.transform.rotation));//pour le pooling
+			enemy_bloodlist.Add(Instantiate(enemy_blood, Vector3.zero, enemy_blood.transform.rotation));
+			bulletlist.Add(Instantiate(bullet, Vector3.zero, Quaternion.identity));
+			casinglist.Add(Instantiate(casing, Vector3.zero, Quaternion.identity));
+			spaklelist.Add(Instantiate(spakle, Vector3.zero, spakle.transform.rotation));
 		}
 		mapGenerator.setSeed(seed);
 		map = mapGenerator.generateMap();
@@ -147,7 +148,7 @@ public class GameManager : MonoBehaviour {
 				playerIndexPos,
 				minEnemyRangeSpawn,
             	maxEnemyRangeSpawn,
-            	playerTransform.GetChild(0).lossyScale.y / 2.0f);
+				ENEMY_Z_POSITION);
 			Instantiate(
             	enemyPrefab,
             	enemyPos,
@@ -171,7 +172,7 @@ public class GameManager : MonoBehaviour {
 			}
 		}
 		GameObject newsparkle = Instantiate(spakle, Vector3.zero, Quaternion.identity);//si on en trouve pas on en rajoute un dans la liste
-		spaklelist.Append(newsparkle);
+		spaklelist.Add(newsparkle);
 		return newsparkle;
 	}
 	
@@ -182,55 +183,47 @@ public class GameManager : MonoBehaviour {
 			}
 		}
 		
-		GameObject newblood = Instantiate(blood, Vector3.zero, Quaternion.identity);//si on en trouve pas on en rajoute un dans la liste
-		bloodlist.Append(newblood);
+		GameObject newblood = Instantiate(blood, Vector3.zero, blood.transform.rotation);//si on en trouve pas on en rajoute un dans la liste
+		bloodlist.Add(newblood);
 		return newblood;
 	}	
 	
-	private GameObject get_enemy_blood_Available()
-	{
-		foreach (var eb in enemy_bloodlist)
-		{
-			if (!eb.activeSelf)//si on trouve un GameObject disponible
-			{
+	private GameObject get_enemy_blood_Available() {
+		foreach (var eb in enemy_bloodlist) {
+			if (!eb.activeSelf) {
 				return eb;
 			}
 		}
 		
-		GameObject new_enemy_blood = Instantiate(enemy_blood, Vector3.zero, Quaternion.identity);//si on en trouve pas on en rajoute un dans la liste
-		enemy_bloodlist.Append(new_enemy_blood);
+		GameObject new_enemy_blood = Instantiate(enemy_blood, Vector3.zero, enemy_blood.transform.rotation);//si on en trouve pas on en rajoute un dans la liste
+		enemy_bloodlist.Add(new_enemy_blood);
 		return new_enemy_blood;
 	}	
 	
-	private GameObject get_bullet_Available()
-	{
-		foreach (var b in bulletlist)
-		{
-			if (!b.activeSelf)//si on trouve un GameObject disponible
-			{
+	private GameObject get_bullet_Available() {
+		foreach (var b in bulletlist) {
+			if (!b.activeSelf) { //si on trouve un GameObject disponible
 				return b;
 			}
 		}
 		
 		GameObject newbullet = Instantiate(bullet, Vector3.zero, Quaternion.identity);//si on en trouve pas on en rajoute un dans la liste
-		bulletlist.Append(newbullet);
+		bulletlist.Add(newbullet);
 		return newbullet;
 	}	
 	
-	private GameObject get_casing_Available()
-	{
-		foreach (var c in casinglist)
-		{
-			if (!c.activeSelf)//si on trouve un GameObject disponible
-			{
+	private GameObject get_casing_Available() {
+		foreach (var c in casinglist) {
+			if (!c.activeSelf) { //si on trouve un GameObject disponible
 				return c;
 			}
 		}
 		
 		GameObject newcasing = Instantiate(casing, Vector3.zero, Quaternion.identity);//si on en trouve pas on en rajoute un dans la liste
-		casinglist.Append(newcasing);
+		casinglist.Add(newcasing);
 		return newcasing;
 	}
+	
 	private void deleteAll() {
 		var enemies = FindObjectsOfType<BotManager>();
 		foreach (BotManager enemy in enemies) {
@@ -240,15 +233,32 @@ public class GameManager : MonoBehaviour {
 		Destroy(map);
 	}
 
+	public void generateSparkle(Vector3 position, Quaternion rotation) {
+		var sparkleEffect = get_sparkle_Available();
+
+		var bloodTransform = sparkleEffect.transform;
+		bloodTransform.position = position;
+		bloodTransform.rotation = rotation;
+		
+		sparkleEffect.GetComponent<particleSystem>().activate();
+	}
+
 	public void generateBlood(Vector3 position) {
-		// todo get ground
-		// todo get blood
+		var bloodObject = get_blood_Available();
+
+		var bloodTransform = bloodObject.transform;
+		bloodTransform.position = position;
 		
-		// todo put in place
+		bloodObject.GetComponent<particleSystem>().activate();
+	}
+
+	public void generateEnemyBlood(Vector3 position) {
+		var bloodObject = get_enemy_blood_Available();
+
+		var bloodTransform = bloodObject.transform;
+		bloodTransform.position = position;
 		
-		// todo set active
-		
-		//todo awake
+		bloodObject.GetComponent<particleSystem>().activate();
 	}
 
 	public void generateBullet(Vector3 position, Quaternion rotation) {
@@ -264,12 +274,14 @@ public class GameManager : MonoBehaviour {
 	}
 
 	public void generateCasing(Vector3 position, Quaternion rotation) {
-		// todo get casing
-		
-		// todo put in place
-		
-		// todo set active
-		
-		//todo awake
+		var casingObject = get_casing_Available();
+
+		var casingTransform = casingObject.transform;
+		casingTransform.position = position;
+		casingTransform.rotation = rotation;
+
+		casingObject.SetActive(true);
+
+		casingObject.GetComponent<Casing>().activate();
 	}
 }
