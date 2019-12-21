@@ -1292,7 +1292,6 @@ MonoBehaviour:
   playerXSpeed: 0
   playerZSpeed: 0
   playerBody: {fileID: 6385045574620371143}
-  transform: {fileID: 5877900412356338089}
   health: 10
   gun: {fileID: 5879328263475039832}
   dirt: {fileID: 7918463022870733546}
@@ -1338,8 +1337,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06b21634b710ccc4d840a5c4eefd7df0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  height: 30
-  zCorrection: -15
+  height: 10
+  CAMERA_DISTANCE: 12
+  CAMERA_ANGLE: 25
 --- !u!81 &3114803928908219040
 AudioListener:
   m_ObjectHideFlags: 0

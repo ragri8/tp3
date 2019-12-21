@@ -6,22 +6,24 @@ using random = UnityEngine.Random;
 
 namespace Map {
     public class ProceduralMapGenerator : MonoBehaviour {
-        
+
         public GameObject groundPrefab;
         public GameObject wallPrefab; // default for south, rotate for other direction
+        public GameObject cornerPrefab; // default for south-east, rotate for other direction
         public int sizeX = 30;
         public int sizeZ = 30;
 
         private static int SOUTH_WALL_ORIENTATION = 0;
         private static int NORTH_WALL_ORIENTATION = 180;
-        private static int EAST_WALL_ORIENTATION = 90;
-        private static int WEST_WALL_ORIENTATION = 270;
-        
+        private static int EAST_WALL_ORIENTATION = 270;
+        private static int WEST_WALL_ORIENTATION = 90;
+
         private GameGrid gameGrid;
         private int seed;
         private List<int> activeBoxes;
         private List<int> boxIds;
         private int idsRemaining;
+        private List<GameObject> gridBoxObjects;
 
         public ProceduralMapGenerator(int seed) {
             this.seed = seed;
@@ -30,7 +32,7 @@ namespace Map {
         public void setSeed(int seed) {
             this.seed = seed;
         }
-        
+
         public GameObject generateMap() {
             reset();
             gameGrid = new GameGrid();
@@ -75,15 +77,19 @@ namespace Map {
             if (index / sizeX > 0) {
                 directions.Add(index - sizeX); // add south
             }
+
             if (index / sizeX < sizeX * (sizeZ - 1)) {
                 directions.Add(index + sizeX); // add north
             }
+
             if (index % sizeX != sizeX - 1) {
                 directions.Add(index + 1); // add east
             }
+
             if (index % sizeX != 0) {
                 directions.Add(index - 1); // add west
             }
+
             while (directions.Count > 0) {
                 var directionIndex = random.Range(0, directions.Count - 1);
                 var connectedIndex = directions[directionIndex];
@@ -94,8 +100,10 @@ namespace Map {
                         return true;
                     }
                 }
+
                 directions.RemoveAt(directionIndex);
             }
+
             return false;
         }
 
@@ -109,6 +117,7 @@ namespace Map {
                     boxIds[index] = dest;
                 }
             }
+
             idsRemaining -= 1;
         }
 
@@ -116,6 +125,7 @@ namespace Map {
             if (gameGrid != null) {
                 return gameGrid;
             }
+
             Debug.LogError(
                 "<Color=Red><b>Missing</b></Color> Instantiation error. Grid has not been instantiated",
                 this);
@@ -129,9 +139,9 @@ namespace Map {
         private void generateGround(GameObject map) {
             groundPrefab.transform.localScale = new Vector3(sizeX, 1, sizeZ);
             var position = new Vector3(
-                (float)(sizeX * GameGrid.gridBoxSize / 2.0),
+                (float) (sizeX * GameGrid.gridBoxSize / 2.0),
                 0,
-                (float)(sizeZ * GameGrid.gridBoxSize / 2.0));
+                (float) (sizeZ * GameGrid.gridBoxSize / 2.0));
             Instantiate(groundPrefab, position, Quaternion.identity, map.transform);
         }
 
@@ -139,47 +149,86 @@ namespace Map {
             for (var index = 0; index < gameGrid.getSize(); index++) {
                 var connections = gameGrid.connectedInDirections(index);
                 var coord = gameGrid.indexToCoord(index);
-                // south
+                var posX = coord.Item1 * GameGrid.gridBoxSize;
+                var posZ = coord.Item2 * GameGrid.gridBoxSize;
+
                 if (!connections.Item1) {
-                    generateWall(
-                        map,
-                        coord.Item1 * GameGrid.gridBoxSize + GameGrid.gridBoxSize / 2.0f,
-                        coord.Item2 * GameGrid.gridBoxSize,
-                        SOUTH_WALL_ORIENTATION);
-                    
+                    generateWall(map, posX, posZ, SOUTH_WALL_ORIENTATION);
                 }
-                // north
+
                 if (!connections.Item2) {
-                    generateWall(
-                        map,
-                        coord.Item1 * GameGrid.gridBoxSize + GameGrid.gridBoxSize / 2.0f,
-                        coord.Item2 * GameGrid.gridBoxSize + GameGrid.gridBoxSize,
-                        NORTH_WALL_ORIENTATION);
+                    generateWall(map, posX, posZ, NORTH_WALL_ORIENTATION);
                 }
-                // east
+
                 if (!connections.Item3) {
-                    generateWall(
-                        map,
-                        coord.Item1 * GameGrid.gridBoxSize + GameGrid.gridBoxSize,
-                        coord.Item2 * GameGrid.gridBoxSize + GameGrid.gridBoxSize / 2.0f,
-                        EAST_WALL_ORIENTATION);
-                    
+                    generateWall(map, posX, posZ, EAST_WALL_ORIENTATION);
                 }
-                // west
+
                 if (!connections.Item4) {
-                    generateWall(
-                        map,
-                        coord.Item1 * GameGrid.gridBoxSize,
-                        coord.Item2 * GameGrid.gridBoxSize + GameGrid.gridBoxSize / 2.0f,
-                        WEST_WALL_ORIENTATION);
+                    generateWall(map, posX, posZ, WEST_WALL_ORIENTATION);
+                }
+
+                
+                if (connections.Item1) {
+                    if (connections.Item3) { // south-east corner
+                        generateCorner(map, posX, posZ, SOUTH_WALL_ORIENTATION);
+                    }
+                    if (connections.Item4) { // south-west corner
+                        generateCorner(map, posX, posZ, WEST_WALL_ORIENTATION);
+                    }
+                }
+                if (connections.Item2) {
+                    if (connections.Item4) { // north-east corner
+                        generateCorner(map, posX, posZ, NORTH_WALL_ORIENTATION);
+                    }
+                    if (connections.Item3) { // north-west corner
+                        generateCorner(map, posX, posZ, EAST_WALL_ORIENTATION);
+                    }
                 }
             }
+
+            generateOuterWalls(map);
         }
 
         private void generateWall(GameObject map, float posX, float posZ, float orientation) {
-            var position = new Vector3(posX, GameGrid.gridBoxSize / 2.0f, posZ);
-            var orientationVec = Quaternion.Euler(new Vector3(90, 0, orientation));
+            var position = new Vector3(
+                posX + GameGrid.gridBoxSize / 2.0f,
+                0,
+                posZ + GameGrid.gridBoxSize / 2.0f);
+
+            var orientationVec = Quaternion.Euler(new Vector3(0, orientation, 0));
             Instantiate(wallPrefab, position, orientationVec, map.transform);
         }
-    }
+
+        private void generateCorner(GameObject map, float posX, float posZ, float orientation) {
+            var position = new Vector3(
+                posX + GameGrid.gridBoxSize / 2.0f,
+                0,
+                posZ + GameGrid.gridBoxSize / 2.0f);
+
+            var orientationVec = Quaternion.Euler(new Vector3(0, orientation, 0));
+            Instantiate(cornerPrefab, position, orientationVec, map.transform);
+        }
+        private void generateOuterWalls(GameObject map) {
+            for (var i = 0; i < sizeX; i++) {
+                var posX = i * GameGrid.gridBoxSize;
+                var posZSouth = - GameGrid.gridBoxSize;
+                var posZNorth = sizeZ * GameGrid.gridBoxSize;
+                generateWall(map, posX, posZSouth, NORTH_WALL_ORIENTATION);
+                generateWall(map, posX, posZNorth, SOUTH_WALL_ORIENTATION);
+            }
+            for (var i = 0; i < sizeZ; i++) {
+                var posXWest = - GameGrid.gridBoxSize;
+                var posXEast = sizeX * GameGrid.gridBoxSize;
+                var posZ = i * GameGrid.gridBoxSize;
+                generateWall(map, posXWest, posZ, EAST_WALL_ORIENTATION);
+                generateWall(map, posXEast, posZ, WEST_WALL_ORIENTATION);
+            }
+            generateCorner(map, -GameGrid.gridBoxSize, sizeZ * GameGrid.gridBoxSize, SOUTH_WALL_ORIENTATION); // north-west corner
+            generateCorner(map, sizeX * GameGrid.gridBoxSize, sizeZ * GameGrid.gridBoxSize, WEST_WALL_ORIENTATION); // north-east corner
+            generateCorner(map, sizeX * GameGrid.gridBoxSize, -GameGrid.gridBoxSize, NORTH_WALL_ORIENTATION); // south-east corner
+            generateCorner(map, -GameGrid.gridBoxSize, -GameGrid.gridBoxSize, EAST_WALL_ORIENTATION); // south-west corner
+        }
+    }// sud ouest: 0, -GameGrid.gridBoxSize
+    
 }
