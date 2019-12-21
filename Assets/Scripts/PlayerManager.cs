@@ -10,6 +10,7 @@ public class PlayerManager : MonoBehaviour {
     [Tooltip("The Player's UI GameObject Prefab")]
     [SerializeField]
     private GameManager game;
+    private GameMusicManager music;
     public GameObject healthbar;
     public float playerXSpeed;
     public float playerZSpeed;
@@ -77,6 +78,7 @@ public class PlayerManager : MonoBehaviour {
     public void  Debutjeu() {
         lobby = false;
         game = GameObject.Find("Game Manager").GetComponent<GameManager>();
+        music = GameObject.Find("Game Music").GetComponent<GameMusicManager>();
         healthbar = Instantiate(this.healthbar);
         healthbar.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
         playerBody.useGravity = true;
@@ -96,6 +98,10 @@ public class PlayerManager : MonoBehaviour {
             anim.SetFloat("DeathType_int",1);
             anim.SetBool("Death_b",true);
             game.gameOver(LocalPlayerInstance);
+        } 
+        else if (health <= 3)
+        {
+            music.lowHealthMusic();
         }
     }
 

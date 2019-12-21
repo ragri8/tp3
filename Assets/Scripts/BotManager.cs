@@ -7,6 +7,8 @@ public class BotManager : MonoBehaviour {
     private static float ROTATION_SPEED = 50.0f;
     
     private GameObject LocalPlayerInstance;
+    [SerializeField] private AudioSource scream;
+    [SerializeField] private AudioSource moan;
     private AIBehaviour aiBehaviour;
     public GameManager game;
     private Animator anim;
@@ -22,6 +24,8 @@ public class BotManager : MonoBehaviour {
         LocalPlayerInstance = gameObject;
         aiBehaviour = new AIBehaviour(gameObject);
         health = 2;
+        moan.volume = (1/100f) * PlayerPrefs.GetInt("sfxVolume", 100);
+        scream.volume = (1/100f) * PlayerPrefs.GetInt("sfxVolume", 100);
     }
     
     void Update() {
@@ -70,12 +74,14 @@ public class BotManager : MonoBehaviour {
     void ProcessInputs() {
         if (isAttacking) {
             anim.SetBool("attack", true);
+            scream.Play();
             isAttacking = false;
             return;
         }
         
         if (aiBehaviour.getTranslationState() == MovementTranslationState.FORWARD) {
             _speed = MAX_SPEED;
+            //moan.Play();
         } else if (aiBehaviour.getTranslationState() == MovementTranslationState.SLOW) {
             _speed = MAX_SPEED;
         } else {

@@ -51,6 +51,8 @@ public class GameManager : MonoBehaviour {
 	public int seed = 42;
 	public ProceduralMapGenerator mapGenerator;
 
+	private GameMusicManager music;
+	public AudioSource comboJingle;
 	
 	void Start() {
 		for (int i = 0; i < 10; i++)
@@ -75,6 +77,8 @@ public class GameManager : MonoBehaviour {
 			player.transform.position = gameGrid.randomPosition(player.transform.GetChild(0).lossyScale.y / 2.0f);
 		}
 		loadPlayerAvatar();
+		music = GameObject.Find("Game Music").GetComponent<GameMusicManager>();
+		comboJingle.volume = (1/100f) * PlayerPrefs.GetInt("sfxVolume", 100);
 	}
 	
 	void Update() {
@@ -109,6 +113,7 @@ public class GameManager : MonoBehaviour {
 	public void gameOver(GameObject player) {
 		gameOverPanel.SetActive(true);//on affiche juste le panel de gameOver
 		isGameOver = true;
+		music.gameOver();
 		var enemies = FindObjectsOfType<BotManager>();
 		foreach (BotManager enemy in enemies) {
 			enemy.removePlayer(player);
@@ -164,6 +169,16 @@ public class GameManager : MonoBehaviour {
 		enemyKilled++;
 		if (respawnCooldown <= 0) {
 			respawnCooldown = minimumRespawnTime;
+		}
+
+		if (enemyKilled % 5 == 0)
+		{
+			
+			if (comboJingle.pitch < 2)
+			{
+				comboJingle.pitch += 0.1f;
+			}
+			comboJingle.Play();
 		}
 	}
 
