@@ -19,6 +19,7 @@ public class GameManager : MonoBehaviour {
 	//[SerializeField] private GameObject iaPrefab;
 	private GameGrid gameGrid;
 	private GameObject player;
+	private PlayerManager playerManager;
 	private GameObject map;
 	[SerializeField] private GameObject blood;
 	[SerializeField] private GameObject enemy_blood;
@@ -75,6 +76,7 @@ public class GameManager : MonoBehaviour {
 			player.transform.position = gameGrid.randomPosition(
 				player.transform.GetChild(0).lossyScale.y / 2.0f);
 		}
+		playerManager = player.GetComponent<PlayerManager>();
 		loadPlayerAvatar();
 		music = GameObject.Find("Game Music").GetComponent<GameMusicManager>();
 		comboJingle.volume = (1/100f) * PlayerPrefs.GetInt("sfxVolume", 100);
@@ -103,11 +105,21 @@ public class GameManager : MonoBehaviour {
 
 	public void Pause() {
 		paused = true;
+		playerManager.Pause();
+		var enemies = FindObjectsOfType<BotManager>();
+		foreach (BotManager enemy in enemies) {
+			enemy.Pause();
+		}
 	}
 
 	public void Continue() {
 		paused = false;
 		music.Continue();
+		playerManager.Continue();
+		var enemies = FindObjectsOfType<BotManager>();
+		foreach (BotManager enemy in enemies) {
+			enemy.Continue();
+		}
 	}
 
 	public void gameOver(GameObject player) {
@@ -130,7 +142,6 @@ public class GameManager : MonoBehaviour {
 	}
 
 	private void loadPlayerAvatar() {
-		var playerManager = FindObjectOfType<PlayerManager>();
 		playerManager.Debutjeu();
 	}
 

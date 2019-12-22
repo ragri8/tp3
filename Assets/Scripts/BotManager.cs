@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using AI;
 using UnityEngine;
@@ -33,6 +34,14 @@ public class BotManager : MonoBehaviour {
             aiBehaviour.update();
             ProcessInputs();
         }
+    }
+
+    public void Continue() {
+        anim.enabled = true;
+    }
+
+    public void Pause() {
+        anim.enabled = false;
     }
 
     private void OnCollisionEnter(Collision collide) {

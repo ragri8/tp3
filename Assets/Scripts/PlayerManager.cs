@@ -55,6 +55,14 @@ public class PlayerManager : MonoBehaviour {
         }
     }
 
+    public void Continue() {
+        anim.enabled = true;
+    }
+
+    public void Pause() {
+        anim.enabled = false;
+    }
+
     private void LateUpdate() {
         if (!lobby) {
             var transformPos = transform.position;
