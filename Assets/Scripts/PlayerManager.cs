@@ -24,7 +24,6 @@ public class PlayerManager : MonoBehaviour {
     private bool shoot;
     private bool hasShot = false;
     private Dictionary<string, KeyCode> controlKeys = new Dictionary<string, KeyCode>();
-    private float rotationspeed=130;
     private float rotationSensibility;
     [SerializeField] private GameObject gun;
     [SerializeField] private GameObject dirt;
@@ -136,7 +135,7 @@ public class PlayerManager : MonoBehaviour {
         }
         anim.SetBool("Jump_b", shoot);
         anim.SetFloat("Speed_f", playerZSpeed);
-        transform.Rotate(0, rotationspeed * Time.deltaTime * playerXSpeed, 0);
+        transform.Rotate(0, rotationSensibility * Time.deltaTime * playerXSpeed, 0);
         dirt.SetActive(anim.GetCurrentAnimatorStateInfo(0).IsName("Run"));
         
         if (anim.GetCurrentAnimatorStateInfo(3).IsName("shoot")) {
