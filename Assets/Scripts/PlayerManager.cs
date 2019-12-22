@@ -105,7 +105,7 @@ public class PlayerManager : MonoBehaviour {
             anim.SetFloat("DeathType_int",1);
             anim.SetBool("Death_b",true);
             game.gameOver(LocalPlayerInstance);
-        } 
+        }
         else if (health <= 3)
         {
             music.lowHealthMusic();
