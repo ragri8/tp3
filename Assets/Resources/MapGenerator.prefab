@@ -47,6 +47,8 @@ MonoBehaviour:
     type: 3}
   wallPrefab: {fileID: 4577040839578750677, guid: 01f9d130c889474e18e85d4a2e787b42,
     type: 3}
+  wallBloodyPrefab: {fileID: 6828335286516991274, guid: 6aab8b6d76aff973b93822cb317f1b45,
+    type: 3}
   cornerPrefab: {fileID: 4285730522944441495, guid: e9bec60d6693517a7bfc24263a4149ed,
     type: 3}
   sizeX: 30

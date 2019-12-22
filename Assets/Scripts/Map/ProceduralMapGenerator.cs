@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using random = UnityEngine.Random;
+using Random = System.Random;
 
 namespace Map {
     public class ProceduralMapGenerator : MonoBehaviour {
 
         public GameObject groundPrefab;
         public GameObject wallPrefab; // default for south, rotate for other direction
+        public GameObject wallBloodyPrefab; // go away written on the wall
         public GameObject cornerPrefab; // default for south-east, rotate for other direction
         public int sizeX = 30;
         public int sizeZ = 30;
@@ -197,7 +199,7 @@ namespace Map {
                 posZ + GameGrid.gridBoxSize / 2.0f);
 
             var orientationVec = Quaternion.Euler(new Vector3(0, orientation, 0));
-            Instantiate(wallPrefab, position, orientationVec, map.transform);
+            Instantiate(getWallPrefab(), position, orientationVec, map.transform);
         }
 
         private void generateCorner(GameObject map, float posX, float posZ, float orientation) {
@@ -229,6 +231,13 @@ namespace Map {
             generateCorner(map, sizeX * GameGrid.gridBoxSize, -GameGrid.gridBoxSize, NORTH_WALL_ORIENTATION); // south-east corner
             generateCorner(map, -GameGrid.gridBoxSize, -GameGrid.gridBoxSize, EAST_WALL_ORIENTATION); // south-west corner
         }
-    }// sud ouest: 0, -GameGrid.gridBoxSize
     
+        private GameObject getWallPrefab() {
+            var randomVal = random.Range(0, 20);
+            if (randomVal == 0) {
+                return wallBloodyPrefab;
+            }
+            return wallPrefab;
+        }
+    }
 }
