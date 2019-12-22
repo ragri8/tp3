@@ -211,6 +211,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerHealthSlider: {fileID: 8531397799331485149}
+  background: {fileID: 8531397799707590726}
+  fill: {fileID: 8531397799096594799}
 --- !u!1 &8531397799707590776
 GameObject:
   m_ObjectHideFlags: 0
@@ -269,7 +271,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0, b: 0, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
