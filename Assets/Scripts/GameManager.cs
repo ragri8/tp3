@@ -38,15 +38,16 @@ public class GameManager : MonoBehaviour {
 	public Text enemyKilledDisplayText;
 	public bool paused = false;
 	private int nbrEnemies = 0;
-	private int maxEnemies = 5;
+	private int maxEnemies = 10;
 	private int enemyKilled = 0;
 	private float respawnCooldown = 0;
-	private float minimumRespawnTime = 1;
+	private float minimumRespawnTime = 0;
 	public int minEnemyRangeSpawn = 4;
-	public int maxEnemyRangeSpawn = 6;
+	public int maxEnemyRangeSpawn = 5;
 	public float timeBasedEnemyIncrease = 5;
 	private const float TIME_ENEMY_INCREASE_VALUE = 10;
 	private const float ENEMY_Z_POSITION = 0.0f;
+	private const float MAX_ENEMY_DISTANCE = 50;
 	
 	public int seed = 42;
 	public ProceduralMapGenerator mapGenerator;
@@ -66,7 +67,7 @@ public class GameManager : MonoBehaviour {
 		mapGenerator.setSeed(seed);
 		map = mapGenerator.generateMap();
 		gameGrid = mapGenerator.getGrid();
-		player=GameObject.Find("player");
+		player = GameObject.Find("player");
 		player.SendMessage("Debutjeu");
 		if (player == null) {
 			// #Tip Never assume public properties of Components are filled up properly, always check and inform the developer of it.
@@ -139,6 +140,7 @@ public class GameManager : MonoBehaviour {
 		if (timeBasedEnemyIncrease <= 0) {
 			maxEnemies++;
 			timeBasedEnemyIncrease = TIME_ENEMY_INCREASE_VALUE;
+			teleportEnemies();
 		}
 	}
 
@@ -300,5 +302,24 @@ public class GameManager : MonoBehaviour {
 		casingObject.SetActive(true);
 
 		casingObject.GetComponent<Casing>().activate();
+	}
+
+	public void teleportEnemies() {
+		var playerPos = player.transform.position;
+		var playerIndexPos = gameGrid.realWorldCoordToIndex(
+			playerPos.x,
+			playerPos.z,
+			0,
+			0);
+		var enemies = FindObjectsOfType<BotManager>();
+		foreach (BotManager enemy in enemies) {
+			if (Vector3.Distance(enemy.transform.position, playerPos) > MAX_ENEMY_DISTANCE) {
+				enemy.transform.position = gameGrid.randomPositionInRange(
+					playerIndexPos,
+					minEnemyRangeSpawn,
+					minEnemyRangeSpawn,
+					ENEMY_Z_POSITION);
+			}
+		}
 	}
 }
