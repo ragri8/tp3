@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using Map;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -49,33 +47,33 @@ public class GameManager : MonoBehaviour {
 	private const float ENEMY_Z_POSITION = 0.0f;
 	private const float MAX_ENEMY_DISTANCE = 50;
 	
-	public int seed = 42;
 	public ProceduralMapGenerator mapGenerator;
 
 	private GameMusicManager music;
 	public AudioSource comboJingle;
 	
 	void Start() {
-		for (int i = 0; i < 10; i++)
-		{
+		for (int i = 0; i < 10; i++) {
 			bloodlist.Add(Instantiate(blood, Vector3.zero, blood.transform.rotation));//pour le pooling
 			enemy_bloodlist.Add(Instantiate(enemy_blood, Vector3.zero, enemy_blood.transform.rotation));
 			bulletlist.Add(Instantiate(bullet, Vector3.zero, Quaternion.identity));
 			casinglist.Add(Instantiate(casing, Vector3.zero, Quaternion.identity));
 			spaklelist.Add(Instantiate(spakle, Vector3.zero, spakle.transform.rotation));
 		}
+
+		var seed = PlayerPrefs.GetInt("Seed1", 42);
 		mapGenerator.setSeed(seed);
 		map = mapGenerator.generateMap();
 		gameGrid = mapGenerator.getGrid();
 		player = GameObject.Find("player");
 		player.SendMessage("Debutjeu");
 		if (player == null) {
-			// #Tip Never assume public properties of Components are filled up properly, always check and inform the developer of it.
 			Debug.LogError(
 				"<Color=Red><b>Missing</b></Color> objet player introuvable",
 				this);
 		} else {
-			player.transform.position = gameGrid.randomPosition(player.transform.GetChild(0).lossyScale.y / 2.0f);
+			player.transform.position = gameGrid.randomPosition(
+				player.transform.GetChild(0).lossyScale.y / 2.0f);
 		}
 		loadPlayerAvatar();
 		music = GameObject.Find("Game Music").GetComponent<GameMusicManager>();
@@ -83,11 +81,11 @@ public class GameManager : MonoBehaviour {
 	}
 	
 	void Update() {
-		pausepanel.SetActive(paused);//affichage au non du panel de la pause et du numero de la vague
+		pausepanel.SetActive(paused);
 		enemyKilledDisplayText.text = "Enemies killed: " + enemyKilled;
 		if (Input.GetKeyDown(KeyCode.Escape)) {
 			if (paused) {
-				Continue(); //on demande au gameManager de tout les joueur d'effectuer la fonction Continue ou Pause
+				Continue();
 			} else {
 				Pause();
 			}
@@ -109,15 +107,25 @@ public class GameManager : MonoBehaviour {
 
 	public void Continue() {
 		paused = false;
+		music.Continue();
 	}
 
 	public void gameOver(GameObject player) {
+		saveHighscore();
 		gameOverPanel.SetActive(true);//on affiche juste le panel de gameOver
 		isGameOver = true;
 		music.gameOver();
 		var enemies = FindObjectsOfType<BotManager>();
 		foreach (BotManager enemy in enemies) {
 			enemy.removePlayer(player);
+		}
+	}
+
+	private void saveHighscore() {
+		var oldHighscore = PlayerPrefs.GetInt("Highscore1", 0);
+		if (enemyKilled > oldHighscore) {
+			PlayerPrefs.SetInt("Highscore1", enemyKilled);
+			PlayerPrefs.Save();
 		}
 	}
 
@@ -172,12 +180,8 @@ public class GameManager : MonoBehaviour {
 		if (respawnCooldown <= 0) {
 			respawnCooldown = minimumRespawnTime;
 		}
-
-		if (enemyKilled % 5 == 0)
-		{
-			
-			if (comboJingle.pitch < 2)
-			{
+		if (enemyKilled % 5 == 0) {
+			if (comboJingle.pitch < 2) {
 				comboJingle.pitch += 0.1f;
 			}
 			comboJingle.Play();
@@ -186,23 +190,28 @@ public class GameManager : MonoBehaviour {
 
 	private GameObject get_sparkle_Available() {
 		foreach (var s in spaklelist) {
-			if (!s.activeSelf) { //si on trouve un GameObject disponible
+			if (!s.activeSelf) {
 				return s;
 			}
 		}
-		GameObject newsparkle = Instantiate(spakle, Vector3.zero, Quaternion.identity);//si on en trouve pas on en rajoute un dans la liste
+		GameObject newsparkle = Instantiate(
+			spakle,
+			Vector3.zero,
+			Quaternion.identity);
 		spaklelist.Add(newsparkle);
 		return newsparkle;
 	}
 	
 	private GameObject get_blood_Available() {
 		foreach (var b in bloodlist) {
-			if (!b.activeSelf) { //si on trouve un GameObject disponible
+			if (!b.activeSelf) {
 				return b;
 			}
 		}
-		
-		GameObject newblood = Instantiate(blood, Vector3.zero, blood.transform.rotation);//si on en trouve pas on en rajoute un dans la liste
+		GameObject newblood = Instantiate(
+			blood,
+			Vector3.zero,
+			blood.transform.rotation);
 		bloodlist.Add(newblood);
 		return newblood;
 	}	
@@ -213,39 +222,45 @@ public class GameManager : MonoBehaviour {
 				return eb;
 			}
 		}
-		
-		GameObject new_enemy_blood = Instantiate(enemy_blood, Vector3.zero, enemy_blood.transform.rotation);//si on en trouve pas on en rajoute un dans la liste
+		GameObject new_enemy_blood = Instantiate(
+			enemy_blood,
+			Vector3.zero,
+			enemy_blood.transform.rotation);
 		enemy_bloodlist.Add(new_enemy_blood);
 		return new_enemy_blood;
 	}	
 	
 	private GameObject get_bullet_Available() {
 		foreach (var b in bulletlist) {
-			if (!b.activeSelf) { //si on trouve un GameObject disponible
+			if (!b.activeSelf) {
 				return b;
 			}
 		}
-		
-		GameObject newbullet = Instantiate(bullet, Vector3.zero, Quaternion.identity);//si on en trouve pas on en rajoute un dans la liste
+		GameObject newbullet = Instantiate(
+			bullet,
+			Vector3.zero,
+			Quaternion.identity);
 		bulletlist.Add(newbullet);
 		return newbullet;
 	}	
 	
 	private GameObject get_casing_Available() {
 		foreach (var c in casinglist) {
-			if (!c.activeSelf) { //si on trouve un GameObject disponible
+			if (!c.activeSelf) {
 				return c;
 			}
 		}
-		
-		GameObject newcasing = Instantiate(casing, Vector3.zero, Quaternion.identity);//si on en trouve pas on en rajoute un dans la liste
+		GameObject newcasing = Instantiate(
+			casing,
+			Vector3.zero,
+			Quaternion.identity);
 		casinglist.Add(newcasing);
 		return newcasing;
 	}
 	
 	private void deleteAll() {
 		var enemies = FindObjectsOfType<BotManager>();
-		foreach (BotManager enemy in enemies) {
+		foreach (var enemy in enemies) {
 			enemy.Destroy();
 		}
 		Destroy(player);

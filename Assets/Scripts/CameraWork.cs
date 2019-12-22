@@ -10,18 +10,12 @@ public class CameraWork : MonoBehaviour {
     private float CAMERA_ANGLE = 25;
     private Transform playerTransform;
 
-    private int xmax = 245;//limite de mouvement de la camera pour la bloqué sur les bords
-    private int zmax = 180;
-    
-    Transform cameraTransform;//transform de la camera
-    bool isFollowing;//indique si la camera doit suivre le joueur
-    private bool cameraSet = false;
+    Transform cameraTransform;
+    bool isFollowing;
+    private bool cameraSet;
 
     private void Awake() {
         playerTransform = transform;
-    }
-
-    void Start() {
     }
 
     void LateUpdate() {
@@ -35,7 +29,6 @@ public class CameraWork : MonoBehaviour {
         }
     }
 
-    
     public void OnStartFollowing() {
         cameraTransform = Camera.main.transform;
         cameraTransform.rotation = Quaternion.Euler(CAMERA_ANGLE, 0, 0);
