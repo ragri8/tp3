@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4492407466686017619}
   m_Layer: 0
   m_Name: Corner
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -47,7 +47,7 @@ GameObject:
   - component: {fileID: 7299673991603466827}
   m_Layer: 0
   m_Name: Top
-  m_TagString: Untagged
+  m_TagString: WallPart
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -137,6 +137,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Face_1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8725700821686390688, guid: 78268678b157cea00b85d5f171f429cc,
+        type: 3}
+      propertyPath: m_TagString
+      value: WallPart
       objectReference: {fileID: 0}
     - target: {fileID: 626969019922193177, guid: 78268678b157cea00b85d5f171f429cc,
         type: 3}
@@ -232,6 +237,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8725700821686390688, guid: 78268678b157cea00b85d5f171f429cc,
+        type: 3}
+      propertyPath: m_TagString
+      value: WallPart
       objectReference: {fileID: 0}
     - target: {fileID: 626969019922193177, guid: 78268678b157cea00b85d5f171f429cc,
         type: 3}

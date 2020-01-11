@@ -6,21 +6,29 @@ namespace Map {
         private int id;
         private int x;
         private int z;
-        private List<int> connectedBox;
+        private List<int> adjacentSquares;
 
         public Gridbox(int id, int x, int z) {
             this.id = id;
             this.x = x;
             this.z = z;
-            connectedBox = new List<int>();
+            adjacentSquares = new List<int>();
         }
 
         public bool isConnected(int index) {
-            return connectedBox.Contains(index);
+            return adjacentSquares.Contains(index);
         }
 
         public void addConnection(int index) {
-            connectedBox.Add(index);
+            adjacentSquares.Add(index);
+        }
+
+        public List<int> getAdjacents() {
+            return adjacentSquares;
+        }
+
+        public int getAdjacentCount() {
+            return adjacentSquares.Count;
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Manager.GameInstance;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class PlayerUI : MonoBehaviour {

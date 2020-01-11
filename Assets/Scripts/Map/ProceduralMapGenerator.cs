@@ -37,8 +37,9 @@ namespace Map {
 
         public GameObject generateMap() {
             reset();
-            gameGrid = new GameGrid();
+            gameGrid = new GameGrid(sizeX, sizeZ);
             buildMaze();
+            gameGrid.initializeDistances();
             var map = new GameObject("map");
             generateGround(map);
             generateWalls(map, gameGrid);

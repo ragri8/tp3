@@ -4649,20 +4649,5 @@ PrefabInstance:
       propertyPath: m_Constraints
       value: 112
       objectReference: {fileID: 0}
-    - target: {fileID: -7451690919956153206, guid: fe5b9c3907d223746b33da2432305c14,
-        type: 3}
-      propertyPath: height
-      value: 22
-      objectReference: {fileID: 0}
-    - target: {fileID: -7451690919956153206, guid: fe5b9c3907d223746b33da2432305c14,
-        type: 3}
-      propertyPath: CAMERA_DISTANCE
-      value: 12
-      objectReference: {fileID: 0}
-    - target: {fileID: -7451690919956153206, guid: fe5b9c3907d223746b33da2432305c14,
-        type: 3}
-      propertyPath: CAMERA_ANGLE
-      value: 50
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fe5b9c3907d223746b33da2432305c14, type: 3}

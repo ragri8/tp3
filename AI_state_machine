@@ -1,0 +1,110 @@
+state: WAITING
+Action: nothing
+Initialisation:
+    -timer set to MAX_TIME_WAITING
+Cause of state changing:
+    -time out
+        -if player found within range (see wandering):
+            go to FINDING state
+        -else:
+            go to WANDERING state
+Verification done between state change:
+    -is timed out
+Constant used and values:
+    -MAX_TIME_WAITING: 0.25
+Methods called:
+    -when initializing state:
+        initializeWaiting() // set timer
+    -when timer is over:
+        completeWaiting() // check which new state to choose
+
+
+state: WANDERING
+Action: moving to a POI
+Initialization:
+    -need POI position updated
+    -timer set to MAX_TIME_BETWEEN_WANDERING_RESEARCH
+Cause of state changing:
+    -POI is reached or time out:
+        -go to WAITING state
+Verification done between state change:
+    -is timed out
+    -is within POI range
+Constant used and values:
+    -PATH_EXPLORATION_RANGE: 6
+    -POSITION_DETECTION_RANGE: 3.5 * gameGrid.gridBoxSize
+    -MAX_TIME_BETWEEN_WANDERING_RESEARCH: 5
+    -MIN_POI_DISTANCE: 0.15 * gameGrid.gridBoxSize
+Methods called:
+    -when initializing state:
+        initializeWandering() // set timer and position to a POI (adjacent gridbox center)
+    -for each update when not timing out:
+        resumeWandering() // force time out if within range of POI
+                          // (optimizeable function by removing sqrt dist)
+    -when timer is over:
+        completeWandering() // check which new state to choose
+
+
+
+State: FINDING
+Action: moving to next gridbox to get to player
+Initialization:
+    -need POI(first in player path) position updated
+    -timer set to MAX_TIME_BETWEEN_FINDING_RESEARCH
+Cause of state changing:
+    -POI is reached or time out:
+        -if player within line of sight and range (POSITION_DETECTION_RANGE):
+            go to APPROACHING state
+        -player not within LOS, but within range (path and euclidian):
+            reset FINDING state
+        -else:
+            go to WAITING state
+Verification done between state changes:
+    -is timed out
+    -is within POI range
+Constant used and values:
+    -MAX_TIME_BETWEEN_FINDING_RESEARCH: 3
+Methods called:
+    -when initializing state:
+        initializeFinding() // set timer and position to POI
+                            // (adjacent gridbox center following player's path)
+    -for each update when not timing out:
+        resumeFinding() // force time out if within range of POI
+                        // (optimizeable function by removing sqrt dist)
+                        // (share resumeWandering calls for distance of POI)
+    -when timer is over:
+        completeFinding() // check which new state to choose
+
+
+
+State: APPROACHING:
+Action: move in player direction in a straight line
+Initialization:
+    -timer set to MAX_TIME_APPROACHING
+Cause of state changing:
+    -time out:
+        -if player within line of sight and range (POSITION_APPROACHING_RANGE):
+            -reset FINDING state
+        -else:
+            -if player found within range (see wandering):
+                go to FINDING state
+            -else:
+                go to WAITING state
+Verification done between state change:
+    -is timed out (low value for constant update)
+Constant used and values:
+    -POSITION_APPROACHING_RANGE: 2 * gameGrid.gridBoxSize
+    -MAX_TIME_BETWEEN_APPROACHING_UPDATE: 0.25 (0.5 if too resource costful)
+Methods called:
+    -when initializing state:
+        initializeApproaching() // set timer
+    -for each update when not timing out:
+        resumeFinding() // update position of POI (player)
+    -when timer is over:
+        completeApproaching() // check which new state to choose
+
+
+
+
+
+

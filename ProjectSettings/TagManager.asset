@@ -7,6 +7,8 @@ TagManager:
   - enemy
   - Laser
   - Bullet
+  - Wall
+  - WallPart
   layers:
   - Default
   - TransparentFX

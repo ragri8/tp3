@@ -1,46 +1,53 @@
 using System;
-using System.Collections.Generic;
+using Map;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace AI {
     public class AIBehaviour {
-        private static float DETECTION_RANGE = 40f;
-        private static float DETECTION_LOST_RANGE = 50f;
-        private static float MINIMUM_POI_RANGE = 30f;
         private static float MINIMUM_PRECISION_ANGLE = 3.0f;
         private static float APPROXIMATION_FRONT_COEFFICIENT = 0.25f;
-        private static float REFLEXES = 0.5f;
-        private static float MINIMUM_ATTACKING_RANGE = 3.0f;
+        private static float MAX_SQUARE_ATTACKING_RANGE = (float)Math.Pow(3.0f, 2);
+        private static float MAX_SQUARE_POI_DISTANCE = (float)Math.Pow(0.15f * GameGrid.gridBoxSize, 2);
+        private static float MAX_SQUARE_DETECTION_RANGE = (float)Math.Pow(3.5f * GameGrid.gridBoxSize, 2);
+        private static float MAX_SQUARE_APPROACHING_RANGE = (float)Math.Pow(2f * GameGrid.gridBoxSize, 2);
+        private static int PATH_EXPLORATION_RANGE = 6;
+
+        private static float MAX_WAITING_COOLDOWN_TIME = 0.1f;
+        private static float MAX_WANDERING_COOLDOWN_TIME = 5f;
+        private static float MAX_FINDING_COOLDOWN_TIME = 3f;
+        private static float MAX_APPROACHING_COOLDOWN_TIME = 0.5f; //0.4f; // watch out if too greedy on resources
         
-        private readonly List<GameObject> _players;
-        private readonly Transform _current;
-        public ActionState _actionState;
-        private Vector3 _pointOfInterest;
-        private Transform _target;
-        private bool _targetActive;
-        private float _actionCooldownTime;
-        private float _reflexCooldownTime;
-        private float _cannonCooldownTime;
+        private ActionState _actionState;
         private MovementRotationState _movementRotationState;
         private MovementTranslationState _movementTranslationState;
+        private readonly GameObject _player;
+        private readonly Transform _current;
+        private Vector3 _pointOfInterest;
+        private Transform _playerTransform;
+        private float _actionCooldownTime;
+        private float _reflexCooldownTime;
+        private GameGrid gameGrid;
+        private bool isPlayerAlive;
         
         public bool isAttacking;
 
-        public AIBehaviour(GameObject gameObject) {
+        public AIBehaviour(GameObject gameObject, GameGrid grid) {
             _current = gameObject.transform;
-            _players = new List<GameObject>(GameObject.FindGameObjectsWithTag(Global.PLAYER_TAG));
+            gameGrid = grid;
+            _player = GameObject.FindGameObjectWithTag(Global.PLAYER_TAG);
+            _playerTransform = _player.transform;
+            isPlayerAlive = true;
+            
             changeActionState(ActionState.WAITING);
             _movementRotationState = MovementRotationState.NONE;
             _movementTranslationState = MovementTranslationState.NONE;
-            _targetActive = false;
             _actionCooldownTime = 0f;
             _reflexCooldownTime = 0f;
-            isAttacking = false;
-            _cannonCooldownTime = 0f;
             _pointOfInterest = _current.position;
+            isAttacking = false;
         }
-
+        
         // update is called once per frame
         public void update() {
             var timelapse = Time.deltaTime;
@@ -57,12 +64,11 @@ namespace AI {
         }
 
         private void updateMovementState() {
-            if (_actionState == ActionState.WANDERING) {
+            if (_actionState == ActionState.WANDERING || _actionState == ActionState.FINDING) {
                 movementAdjustmentToObjective(_pointOfInterest);
             } else if (_actionState == ActionState.APPROACHING || _actionState == ActionState.ATTACKING) {
                 // TODO: change movement if attacking generate a new collider
-                var target = _target.position;
-                movementAdjustmentToObjective(target);
+                movementAdjustmentToObjective(_playerTransform.position);
             }
         }
 
@@ -80,8 +86,11 @@ namespace AI {
                 case ActionState.WANDERING:
                     resumeWanderingAction();
                     break;
+                case ActionState.FINDING:
+                    resumeFindingAction();
+                    break;
                 case ActionState.APPROACHING:
-                    resumeApproachAction();
+                    resumeApproachingAction();
                     break;
                 case ActionState.ATTACKING:
                     resumeAttackingAction();
@@ -91,28 +100,29 @@ namespace AI {
 
         // resume action when AI is wandering between points of interests, looking for an enemy
         private void resumeWanderingAction() {
-            searchTarget();
-            if (_targetActive) {
-                changeActionState(ActionState.APPROACHING);
-                _actionCooldownTime = 1f;
-                _cannonCooldownTime = Math.Max(_cannonCooldownTime, REFLEXES);
-            } else {
-                if (Vector3.Distance(_current.position, _pointOfInterest) < MINIMUM_POI_RANGE) {
-                    _actionCooldownTime = 0f;
-                }
+            if (isWithinRangeOfPOI(MAX_SQUARE_POI_DISTANCE)) {
+                _actionCooldownTime = 0f;
             }
         }
 
-        private void resumeApproachAction() {
-            if (Vector3.Distance(_current.position, _target.position) > DETECTION_LOST_RANGE) {
-                _actionCooldownTime = 0f;
-            } else if (Vector3.Distance(_current.position, _target.position) <= MINIMUM_ATTACKING_RANGE) {
+        private void resumeFindingAction() {
+            if (isWithinRangeOfPOI(MAX_SQUARE_POI_DISTANCE)) {
                 _actionCooldownTime = 0f;
             }
+        }
+
+        private void resumeApproachingAction() {
+            if (!isWithinRangeOfPlayer(MAX_SQUARE_APPROACHING_RANGE)) {
+                _actionCooldownTime = 0f;
+            }
+            // removed because attacks are generated by collision for now
+            /* else if (isWithinRangeOfPlayer(MAX_ATTACKING_RANGE)) {
+                _actionCooldownTime = 0f;
+            }*/
         }
 
         private void resumeAttackingAction() {
-            if (Vector3.Distance(_current.position, _target.position) > MINIMUM_ATTACKING_RANGE) {
+            if (isWithinRangeOfPlayer(MAX_SQUARE_ATTACKING_RANGE)) {
                 _actionCooldownTime = 0f;
             }
         }
@@ -125,6 +135,9 @@ namespace AI {
                 case ActionState.WANDERING:
                     completeWanderingAction();
                     break;
+                case ActionState.FINDING:
+                    completeFindingAction();
+                    break;
                 case ActionState.APPROACHING:
                     completeApproachAction();
                     break;
@@ -135,96 +148,114 @@ namespace AI {
         }
 
         private void completeWaitingAction() {
-            searchTarget();
-            if (_targetActive) {
-                changeActionState(ActionState.APPROACHING);
-                _actionCooldownTime = 1f;
-                _cannonCooldownTime = Math.Max(_cannonCooldownTime, REFLEXES);
-            } else {
-                changeActionState(ActionState.WANDERING);
-                _actionCooldownTime = 4f;
-                _pointOfInterest = generatePointOfInterest();
+            // skip if player is dead
+            if (isPlayerAlive) {
+                if (isWithinRangeOfPlayer(MAX_SQUARE_DETECTION_RANGE)
+                    && pathDistanceToPlayer() <= PATH_EXPLORATION_RANGE) {
+                    initializeFindingState();
+                    return;
+                }
             }
+            initializeWanderingState();
         }
 
         private void completeWanderingAction() {
-            changeActionState(ActionState.WAITING);
-            _actionCooldownTime = Random.Range(1f, 3f);
+            initializeWaitingState();
+        }
+
+        private void completeFindingAction() {
+            // check if player in euclidian range
+            if (isWithinRangeOfPlayer(MAX_SQUARE_DETECTION_RANGE)) {
+                if (isWithinLineOfSight()) {
+                    initializeApproachingState();
+                    return;
+                }
+                // check if in range following a path
+                if (pathDistanceToPlayer() <= PATH_EXPLORATION_RANGE) {
+                    initializeFindingState();
+                    return;
+                }
+            }
+            initializeWaitingState();
+            
         }
 
         private void completeApproachAction() {
-            var targetDistance = Vector3.Distance(_current.position, _target.position);
-            if (targetDistance > DETECTION_RANGE) {
-                changeActionState(ActionState.WAITING);
-                _actionCooldownTime = Random.Range(1f, 3f);
-            } else if (targetDistance > MINIMUM_ATTACKING_RANGE) {
-                _actionCooldownTime = 1.0f;
-            } else {
-                isAttacking = true;
-                changeActionState(ActionState.ATTACKING);
-                _actionCooldownTime = 1.0f;
+            /*
+            if (isWithinRangeOfPlayer(MIN_SQUARE_APPROACHING_RANGE)) {
+                initializeAttackingState();
+                return;
             }
+             */
+            if (isWithinRangeOfPlayer(MAX_SQUARE_APPROACHING_RANGE)) {
+                if (isWithinLineOfSight()) {
+                    initializeApproachingState();
+                    return;
+                }
+            }
+            
+            initializeFindingState();
         }
 
         private void completeAttackingAction() {
-            var targetDistance = Vector3.Distance(_current.position, _target.position);
-            if (targetDistance > DETECTION_RANGE) {
+            var targetDistance = Vector3.Distance(_current.position, _playerTransform.position);
+            if (targetDistance > MAX_SQUARE_APPROACHING_RANGE) {
                 isAttacking = false;
                 changeActionState(ActionState.WAITING);
-                _actionCooldownTime = Random.Range(1f, 3f);
-            } else if (targetDistance > MINIMUM_ATTACKING_RANGE) {
+                _actionCooldownTime = Random.Range(0.5f, 1f);
+            } else if (targetDistance > MAX_SQUARE_ATTACKING_RANGE) {
                 isAttacking = false;
                 changeActionState(ActionState.APPROACHING);
-                _actionCooldownTime = 1.0f;
             } else {
                 _actionCooldownTime = 1.0f;
             }
         }
 
-        private void searchTarget() {
-            var closestUnit = _current;
-            var closestDistance = float.MaxValue;
-            foreach (var player in _players) {
-                var playerTr = player.transform;
-                var playerDistance = Vector3.Distance(_current.position, playerTr.position);
-                if (playerDistance < DETECTION_RANGE) {
-                    if (playerDistance < closestDistance) {
-                        closestUnit = playerTr;
-                        closestDistance = playerDistance;
-                    }
-                }
-            }
-            if (closestDistance < float.MaxValue) {
-                setTarget(closestUnit);
-            } else {
-                _targetActive = false;
-            }
+        private void initializeWaitingState() {
+            _actionCooldownTime = MAX_WAITING_COOLDOWN_TIME;
+            changeActionState(ActionState.WAITING);
         }
 
-        private Vector3 generatePointOfInterest() {
-            // TODO: use gamegrid for POI research
-            var distance = Random.Range(DETECTION_RANGE % 2, DETECTION_RANGE);
-            var degreeVariation = Random.Range(-90, 90);
-            var currentPosition = _current.position;
-            var orientation = Util.toRad(_current.eulerAngles.y + degreeVariation);
-            return new Vector3(
-                currentPosition.x - distance * (float)Math.Sin(orientation),
-                currentPosition.y,
-                currentPosition.z - distance * (float)Math.Cos(orientation));
+        private void initializeWanderingState() {
+            _actionCooldownTime = MAX_WANDERING_COOLDOWN_TIME;
+            var currentPos = _current.position;
+            _pointOfInterest = gameGrid.getRandomAdjacent(currentPos.x, currentPos.y, currentPos.z);
+            //Debug.Log("Going from " + currentPos + " to " + _pointOfInterest);
+            changeActionState(ActionState.WANDERING);
         }
 
-        private void setTarget(Transform newTarget) {
-            _target = newTarget;
-            _targetActive = true;
+        private void initializeFindingState() {
+            _actionCooldownTime = MAX_FINDING_COOLDOWN_TIME;
+            _pointOfInterest = nextPositionToPlayer();
+            changeActionState(ActionState.FINDING);
         }
 
-        private void forceResetTarget() {
-            _targetActive = false;
-            _target = null;
-            if (_actionState != ActionState.WAITING && _actionState != ActionState.WANDERING) {
-                changeActionState(ActionState.WAITING);
-                _actionCooldownTime = Random.Range(1f, 3f);
-            }
+        private void initializeApproachingState() {
+            _actionCooldownTime = MAX_APPROACHING_COOLDOWN_TIME;
+            changeActionState(ActionState.APPROACHING);
+        }
+
+        private bool isWithinRangeOfPOI(float squareRange) {
+            var currentPos = _current.position;
+            return Math.Pow(currentPos.x - _pointOfInterest.x, 2) +
+                   Math.Pow(currentPos.z - _pointOfInterest.z, 2)
+                   < squareRange;
+        }
+
+        private bool isWithinRangeOfPlayer(float squareRange) {
+            var currentPos = _current.position;
+            var playerPos = _playerTransform.position;
+            return Math.Pow(currentPos.x - playerPos.x, 2) +
+                   Math.Pow(currentPos.z - playerPos.z, 2)
+                   < squareRange;
+        }
+
+        private Vector3 nextPositionToPlayer() {
+            var currentPos = _current.position;
+            var targetPos = _playerTransform.position;
+            var currentIndex = gameGrid.realWorldCoordToIndex(currentPos.x, currentPos.z);
+            var targetIndex = gameGrid.realWorldCoordToIndex(targetPos.x, targetPos.z);
+            return gameGrid.indexToRealWorldCoord(gameGrid.getNextToIndex(currentIndex, targetIndex), currentPos.y);
         }
 
         private void movementAdjustmentToObjective(Vector3 objective) {
@@ -266,14 +297,37 @@ namespace AI {
         }
 
         private void changeActionState(ActionState newState) {
+            //Debug.Log("Changing to " + newState + " state");
             _actionState = newState;
         }
 
-        public void removePlayer(GameObject player) {
-            _players.Remove(player);
-            if (_targetActive && player.transform.Equals(_target)) {
-                forceResetTarget();
+        public void removePlayer() {
+            isPlayerAlive = false;
+            if (_actionState != ActionState.WAITING && _actionState != ActionState.WANDERING) {
+                initializeWaitingState();
             }
+        }
+
+        private int pathDistanceToPlayer() {
+            var currentPosition = _current.position;
+            var playerPosition = _playerTransform.position;
+            var mapIndex = gameGrid.realWorldCoordToIndex(currentPosition.x, currentPosition.z);
+            var playerIndex = gameGrid.realWorldCoordToIndex(playerPosition.x, playerPosition.z);
+
+            return gameGrid.getIndexDistance(mapIndex, playerIndex);
+        }
+
+        private bool isWithinLineOfSight() {
+            var currentPos = _current.position;
+            var playerPos = _playerTransform.position;
+
+            var direction = playerPos - currentPos;
+            var ry = new Ray(currentPos, direction);
+
+            var hits = Physics.RaycastAll(ry, direction.magnitude);
+            //Debug.DrawRay (currentPos, direction, Color.red, 1.0f);
+
+            return hits.Length == 0;
         }
     }
 }
